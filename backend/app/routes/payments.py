@@ -4,7 +4,7 @@ import re
 import unicodedata
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from sqlmodel import Session, select
 
 from app.auth import get_current_user
@@ -366,10 +366,22 @@ def get_payment_receipt(
     if not current_user.is_admin and payment.user_id != (current_user.id or 0):
         raise HTTPException(status_code=403, detail="You do not have access to this receipt")
 
-    access = storage_service.resolve_receipt(payment.receipt_key, payment.receipt_url)
+    try:
+        access = storage_service.resolve_receipt(payment.receipt_key, payment.receipt_url)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Receipt file not found") from exc
     if access.kind == "redirect":
         response = RedirectResponse(access.location, status_code=307)
         response.headers["Cache-Control"] = "no-store"
+        return response
+
+    if access.kind == "inline":
+        response = Response(
+            content=access.content or b"",
+            media_type=payment.receipt_content_type,
+        )
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Content-Disposition"] = f'inline; filename="{payment.receipt_filename}"'
         return response
 
     file_path = Path(access.location)

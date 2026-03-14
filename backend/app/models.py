@@ -130,3 +130,37 @@ class AIGenerationLog(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow, nullable=False)
 
     user: Optional[User] = Relationship(back_populates="generation_logs")
+
+
+class StoredReceipt(SQLModel, table=True):
+    __tablename__ = "stored_receipt"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    storage_key: str = Field(nullable=False, index=True, unique=True, max_length=255)
+    owner_user_id: Optional[int] = Field(default=None, foreign_key="user.id", nullable=True, index=True)
+    filename: str = Field(nullable=False, max_length=255)
+    content_type: str = Field(nullable=False, max_length=120)
+    byte_size: int = Field(nullable=False, ge=0)
+    content: bytes = Field(sa_column=sa.Column(sa.LargeBinary(), nullable=False))
+    created_at: datetime = Field(default_factory=utcnow, nullable=False)
+
+
+class RateLimitWindow(SQLModel, table=True):
+    __tablename__ = "rate_limit_window"
+    __table_args__ = (
+        sa.UniqueConstraint(
+            "bucket",
+            "identity_hash",
+            "window_start",
+            name="uq_rate_limit_window_bucket_identity_window",
+        ),
+    )
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    bucket: str = Field(nullable=False, index=True, max_length=100)
+    identity_hash: str = Field(nullable=False, index=True, max_length=64)
+    window_start: int = Field(nullable=False, index=True)
+    hits: int = Field(default=0, nullable=False, ge=0)
+    expires_at: datetime = Field(nullable=False, index=True)
+    created_at: datetime = Field(default_factory=utcnow, nullable=False)
+    updated_at: datetime = Field(default_factory=utcnow, nullable=False)

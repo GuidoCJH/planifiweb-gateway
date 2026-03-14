@@ -4,8 +4,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import boto3
+from fastapi import Depends
+from sqlmodel import Session, select
 
 from app.config import get_settings
+from app.db import get_session
+from app.models import StoredReceipt
 
 
 @dataclass
@@ -17,7 +21,8 @@ class StoredFile:
 @dataclass
 class ReceiptAccess:
     kind: str
-    location: str
+    location: str | None = None
+    content: bytes | None = None
 
 
 class StorageService:
@@ -59,6 +64,45 @@ class LocalStorageService(StorageService):
 
     def resolve_receipt(self, key: str, url: str) -> ReceiptAccess:
         return ReceiptAccess(kind="local", location=key)
+
+
+class DatabaseStorageService(StorageService):
+    def __init__(self, session: Session):
+        self.session = session
+
+    def upload_receipt(
+        self,
+        content: bytes,
+        filename: str,
+        content_type: str,
+        user_id: int,
+    ) -> StoredFile:
+        extension = Path(filename).suffix or ".bin"
+        storage_key = (
+            f"db/{user_id}/{int(datetime.now(timezone.utc).timestamp())}_{uuid.uuid4().hex}{extension}"
+        )
+        receipt = StoredReceipt(
+            storage_key=storage_key,
+            owner_user_id=user_id,
+            filename=filename,
+            content_type=content_type,
+            byte_size=len(content),
+            content=content,
+        )
+        self.session.add(receipt)
+        self.session.flush()
+        return StoredFile(
+            key=storage_key,
+            url=f"db://{storage_key}",
+        )
+
+    def resolve_receipt(self, key: str, url: str) -> ReceiptAccess:
+        receipt = self.session.exec(
+            select(StoredReceipt).where(StoredReceipt.storage_key == key)
+        ).first()
+        if receipt is None:
+            raise FileNotFoundError(key)
+        return ReceiptAccess(kind="inline", content=receipt.content)
 
 
 class S3StorageService(StorageService):
@@ -116,7 +160,18 @@ class S3StorageService(StorageService):
         return ReceiptAccess(kind="redirect", location=presigned_url)
 
 
-def get_storage_service() -> StorageService:
+def get_storage_backend() -> str:
+    settings = get_settings()
+    if settings.use_s3_storage:
+        return "s3"
+
+    if settings.is_production:
+        return "database"
+
+    return "local"
+
+
+def get_storage_service(session: Session = Depends(get_session)) -> StorageService:
     settings = get_settings()
     if settings.use_s3_storage:
         return S3StorageService(
@@ -129,9 +184,6 @@ def get_storage_service() -> StorageService:
         )
 
     if settings.is_production:
-        raise RuntimeError(
-            "S3 storage is required in production. Set S3_BUCKET, "
-            "S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY."
-        )
+        return DatabaseStorageService(session)
 
     return LocalStorageService(settings.local_upload_dir)

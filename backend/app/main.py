@@ -17,6 +17,7 @@ from app.security import (
     origin_allowed,
     should_enforce_origin_check,
 )
+from app.storage import get_storage_backend
 
 settings = get_settings()
 configure_logging()
@@ -100,6 +101,7 @@ def readiness_check():
         "status": status,
         "database": "ready" if db_ready else "unavailable",
         "rate_limit_backend": get_rate_limit_backend(),
+        "receipt_storage_backend": get_storage_backend(),
         "payment_precheck_enabled": settings.payment_precheck_active,
     }
     if db_ready:
