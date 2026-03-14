@@ -253,15 +253,19 @@ Cambios aplicados:
 - `VITE_API_BASE_URL`
 - `VITE_APP_PUBLIC_URL`
 
-## 13. Despliegue recomendado
+## 13. Despliegue real actual
 
-### Staging estable
-- Gateway Next.js en Vercel
-- FastAPI en SeeNode
-- `PLANIFIWEB` en Vercel como proyecto separado
-- PostgreSQL real
-- Redis real
-- bucket privado para comprobantes
+### URLs operativas actuales
+- Gateway: `https://planifiweb-gateway.vercel.app`
+- App: `https://planifiweb-app.vercel.app`
+- Backend objetivo: `https://planifiweb-api.seenode.com`
+
+### Estado de infraestructura confirmado
+- Gateway Next.js en Vercel: publicado
+- `PLANIFIWEB` en Vercel: publicado
+- Proyecto `planifiweb-platform` en SeeNode: creado
+- PostgreSQL en SeeNode: creada y operativa
+- Aplicación FastAPI en SeeNode: pendiente de creación por falta de autorización GitHub del workspace
 
 ### Operación del gateway
 - `/api/*` se resuelve por rewrite del proyecto Next.js hacia SeeNode
@@ -269,6 +273,8 @@ Cambios aplicados:
 
 ### Archivo de referencia
 - Guía Vercel/SeeNode: [deploy/vercel/README.md](deploy/vercel/README.md)
+- Bootstrap Vercel: [deploy/vercel/bootstrap.ps1](deploy/vercel/bootstrap.ps1)
+- Bootstrap SeeNode: [deploy/seenode/bootstrap.ps1](deploy/seenode/bootstrap.ps1)
 - Alternativa Nginx clásica: [deploy/nginx/planifiweb.production.conf](deploy/nginx/planifiweb.production.conf)
 
 ## 14. CI y quality gate
@@ -289,3 +295,15 @@ El pipeline debe validar:
 La restricción de exportación en `PLANIFIWEB` sigue dependiendo de la aplicación cliente porque los documentos se editan y renderizan allí. El endurecimiento de sesión ya impide acceso directo no autorizado al flujo protegido, pero para un enforcement irrefutable de exportación es necesario mover la generación final de PDF/DOCX a un servicio server-side dedicado.
 
 No lo oculto: esa es la brecha técnica principal que todavía merece una segunda iteración si el objetivo es control total estilo DRM.
+
+## 17. Bloqueo de despliegue actualmente pendiente
+
+El único bloqueo duro que queda fuera del código es este:
+
+- el workspace de SeeNode responde `github.authorized=false`
+- mientras eso siga así, `POST /v1/applications` falla con `Authentication to GitHub failed`
+
+Por eso el despliegue del backend quedó preparado en dos capas:
+
+1. el script de SeeNode resuelve proyecto, base PostgreSQL y genera el `.env` productivo real en `.local/seenode/planifiweb-api.env.generated`
+2. el mismo script obtiene la URL exacta de OAuth para autorizar GitHub y, una vez hecho ese paso, ya puede crear `planifiweb-api`

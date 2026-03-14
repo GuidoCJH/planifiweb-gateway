@@ -5,7 +5,7 @@ Repositorio principal de la puerta comercial y operativa de `PLANIFIWEB`.
 ## Arquitectura objetivo
 
 ```text
-https://tu-dominio.com/
+https://planifiweb-gateway.vercel.app/
 ├── /              -> Next.js landing, auth, dashboard, legal y panel admin
 ├── /dashboard     -> centro de cuenta, licencia y continuidad del flujo
 ├── /api/*         -> rewrite Vercel hacia FastAPI en SeeNode
@@ -76,10 +76,10 @@ Para staging en Vercel usa:
 
 ```bash
 NEXT_PUBLIC_API_URL=/api
-NEXT_PUBLIC_SITE_URL=https://planifiweb-gateway-staging.vercel.app
+NEXT_PUBLIC_SITE_URL=https://planifiweb-gateway.vercel.app
 NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS=
-API_PROXY_TARGET=https://planifiweb-api-staging.seenode.com
-APP_PROXY_TARGET=https://planifiweb-app-staging.vercel.app
+API_PROXY_TARGET=https://planifiweb-api.seenode.com
+APP_PROXY_TARGET=https://planifiweb-app.vercel.app
 ```
 
 ## Desarrollo local
@@ -100,7 +100,7 @@ npm install
 npm run dev
 ```
 
-## Staging recomendado: Vercel + SeeNode
+## Despliegue actual: Vercel Hobby + SeeNode
 
 ### Gateway en Vercel
 ```bash
@@ -110,10 +110,8 @@ Root Directory: `frontend`
 
 ### Backend en SeeNode
 ```bash
-cd backend
-pip install -r requirements.txt
-alembic upgrade head
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+Build command: `cd backend && pip install -r requirements.txt`
+Run command: `cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000`
 ```
 
 ### App real en Vercel
@@ -121,6 +119,8 @@ Despliega el repositorio `PLANIFIWEB` por separado y publícalo como proyecto de
 
 ### Guía detallada
 Usa [deploy/vercel/README.md](deploy/vercel/README.md) como checklist operativo.
+Usa [deploy/vercel/bootstrap.ps1](deploy/vercel/bootstrap.ps1) para sincronizar variables y redeployar Vercel.
+Usa [deploy/seenode/bootstrap.ps1](deploy/seenode/bootstrap.ps1) para generar el entorno productivo del backend y verificar el estado de GitHub en SeeNode.
 
 ### Alternativa legacy
 El archivo [deploy/nginx/planifiweb.production.conf](deploy/nginx/planifiweb.production.conf) sigue disponible como referencia para una topología clásica con reverse proxy propio.
@@ -149,6 +149,9 @@ cd ..\frontend; npm run lint; npm run typecheck; npm run build
 - Landing: `lint`, `typecheck` y `build` listos.
 - Legal: Términos y Privacidad visibles y exigidos en registro/aceptación.
 - Soporte: botón flotante y enlaces visibles a Telegram.
+- Vercel Hobby: gateway y app ya publicados en `planifiweb-gateway.vercel.app` y `planifiweb-app.vercel.app`.
+- SeeNode: proyecto `planifiweb-platform` y PostgreSQL creados.
+- Bloqueo restante de backend: el workspace de SeeNode todavía no tiene autorización GitHub activa para crear `planifiweb-api` desde el repo. El script `deploy/seenode/bootstrap.ps1` deja el `env` generado y la URL exacta de autorización.
 
 ## Nota importante sobre cookies
 

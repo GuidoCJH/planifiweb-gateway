@@ -24,12 +24,12 @@ Landing comercial, centro de cuenta y puerta de entrada al producto.
 ```bash
 # Gateway en Vercel: trabaja por mismo origen usando /api.
 NEXT_PUBLIC_API_URL=/api
-NEXT_PUBLIC_SITE_URL=https://planifiweb-gateway-staging.vercel.app
+NEXT_PUBLIC_SITE_URL=https://planifiweb-gateway.vercel.app
 NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS=
 
 # Variables de build para rewrites externos
-API_PROXY_TARGET=https://planifiweb-api-staging.seenode.com
-APP_PROXY_TARGET=https://planifiweb-app-staging.vercel.app
+API_PROXY_TARGET=https://planifiweb-api.seenode.com
+APP_PROXY_TARGET=https://planifiweb-app.vercel.app
 ```
 
 ## Desarrollo
@@ -47,7 +47,7 @@ npm run typecheck
 npm run build
 ```
 
-## Staging en Vercel
+## Vercel Hobby en produccion temporal
 
 ```bash
 npm ci
@@ -59,3 +59,4 @@ En Vercel:
 - root directory: `frontend`
 - `/api/*` se resuelve por rewrite hacia SeeNode
 - `/app/*` se resuelve por rewrite hacia el proyecto real de `PLANIFIWEB`
+- URL operativa actual: `https://planifiweb-gateway.vercel.app`
