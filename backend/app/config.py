@@ -118,6 +118,10 @@ class Settings(BaseSettings):
     @property
     def trusted_host_list(self) -> List[str]:
         hosts = [host.strip() for host in self.trusted_hosts.split(",") if host.strip()]
+        provider_defaults = ["*.apps.run-on-seenode.com", "*.seenode.com"]
+        for provider_host in provider_defaults:
+            if provider_host not in hosts:
+                hosts.append(provider_host)
         if self.is_production and "*" in hosts:
             raise ValueError("TRUSTED_HOSTS cannot include '*' in production")
         return hosts or ["localhost", "127.0.0.1"]
