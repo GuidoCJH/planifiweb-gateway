@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { LegalLinks } from "@/components/LegalLinks";
+import { publicGuideSummaries } from "@/lib/discovery";
 
 export const SiteFooter = () => {
   return (
@@ -35,6 +36,19 @@ export const SiteFooter = () => {
           >
             Soporte por Telegram
           </Link>
+        </div>
+
+        <div className="flex flex-col gap-3 text-sm">
+          <p className="font-semibold text-[#10203a]">Guías públicas</p>
+          {publicGuideSummaries.map((guide) => (
+            <Link
+              key={guide.slug}
+              href={`/${guide.slug}`}
+              className="font-semibold text-[#10203a] transition hover:text-[#8a6840]"
+            >
+              {guide.eyebrow}
+            </Link>
+          ))}
         </div>
       </div>
       <div className="mx-auto mt-8 max-w-7xl border-t border-[rgba(16,32,58,0.08)] pt-6 text-xs leading-6 text-[#78879d]">

@@ -1,24 +1,52 @@
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { Pricing } from "@/components/Pricing";
+import { PublicGuidesSection } from "@/components/PublicGuidesSection";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SITE_DESCRIPTION, SITE_URL } from "@/lib/discovery";
 
 export default function Home() {
-  const organizationJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "PLANIFIWEB",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://tu-dominio.com",
-    sameAs: ["https://t.me/guidojh"],
-    description:
-      "Plataforma de acceso, suscripción y continuidad operativa para PLANIFIWEB.",
-  };
+  const siteJsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "PLANIFIWEB",
+      url: SITE_URL,
+      sameAs: ["https://t.me/guidojh"],
+      description: SITE_DESCRIPTION,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "PLANIFIWEB",
+      url: SITE_URL,
+      inLanguage: "es-PE",
+      description: SITE_DESCRIPTION,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "PLANIFIWEB",
+      applicationCategory: "EducationalApplication",
+      operatingSystem: "Web",
+      inLanguage: "es-PE",
+      url: SITE_URL,
+      description:
+        "Aplicación web para docentes del Perú que organiza planificación curricular CNEB, sesiones de aprendizaje, unidades y evaluación por competencias.",
+      offers: {
+        "@type": "AggregateOffer",
+        lowPrice: "9",
+        highPrice: "39",
+        priceCurrency: "PEN",
+      },
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-transparent text-[#10203a]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
       />
       <Navbar />
       <Hero />
@@ -105,6 +133,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <PublicGuidesSection />
 
       <Pricing />
 

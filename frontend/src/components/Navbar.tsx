@@ -23,10 +23,13 @@ export const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-8 text-sm font-semibold text-[#55637a] md:flex">
-          <Link href="#features" className="transition-colors hover:text-[#10203a]">
+          <Link href="/#features" className="transition-colors hover:text-[#10203a]">
             Beneficios
           </Link>
-          <Link href="#pricing" className="transition-colors hover:text-[#10203a]">
+          <Link href="/#guias-publicas" className="transition-colors hover:text-[#10203a]">
+            Guías
+          </Link>
+          <Link href="/#pricing" className="transition-colors hover:text-[#10203a]">
             Suscripción
           </Link>
           <Link href="/terminos" className="transition-colors hover:text-[#10203a]">

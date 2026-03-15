@@ -132,6 +132,37 @@ cd backend; venv\Scripts\python.exe -m pytest tests -q
 cd ..\frontend; npm run lint; npm run typecheck; npm run build
 ```
 
+## Descubrimiento web y buscadores
+
+- URL pública oficial indexable: `https://planifiweb-gateway.vercel.app`
+- La app standalone `https://planifiweb-app.vercel.app` quedó marcada como `noindex`.
+- El gateway publica:
+  - `robots.txt`
+  - `sitemap.xml`
+  - `llms.txt`
+  - key file de IndexNow
+
+### Alta manual pendiente
+
+1. Crear propiedad `URL-prefix` en Google Search Console para:
+   - `https://planifiweb-gateway.vercel.app/`
+2. Enviar:
+   - `https://planifiweb-gateway.vercel.app/sitemap.xml`
+3. Dar de alta la misma URL en Bing Webmaster Tools.
+4. Enviar IndexNow tras publicar cambios importantes:
+
+```powershell
+cd frontend
+npm run indexnow:submit
+```
+
+También puedes pasar URLs concretas:
+
+```powershell
+cd frontend
+npm run indexnow:submit -- / /planificacion-curricular-cneb /sesion-de-aprendizaje
+```
+
 ## Checklist de release
 
 1. Rotar `SECRET_KEY` y cualquier API key usada en pruebas.

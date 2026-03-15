@@ -3,8 +3,7 @@ import { Geist_Mono, Manrope, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { FloatingSupportButton } from "@/components/FloatingSupportButton";
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tu-dominio.com";
+import { SITE_DESCRIPTION, SITE_URL } from "@/lib/discovery";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -22,30 +21,27 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "PLANIFIWEB | Acceso y suscripción para planificación curricular",
+    default: "PLANIFIWEB | Planificación curricular con IA para docentes del Perú",
     template: "%s | PLANIFIWEB",
   },
-  description:
-    "Landing, pago, autenticación y acceso protegido a PLANIFIWEB para docentes del sistema educativo peruano.",
+  description: SITE_DESCRIPTION,
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "PLANIFIWEB | Acceso y suscripción para planificación curricular",
-    description:
-      "Landing, pago, autenticación y acceso protegido a PLANIFIWEB para docentes del sistema educativo peruano.",
-    url: siteUrl,
+    title: "PLANIFIWEB | Planificación curricular con IA para docentes del Perú",
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
     siteName: "PLANIFIWEB",
     locale: "es_PE",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PLANIFIWEB | Acceso y suscripción para planificación curricular",
-    description:
-      "Landing, pago, autenticación y acceso protegido a PLANIFIWEB para docentes del sistema educativo peruano.",
+    title: "PLANIFIWEB | Planificación curricular con IA para docentes del Perú",
+    description: SITE_DESCRIPTION,
   },
   robots: {
     index: true,

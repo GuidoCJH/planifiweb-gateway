@@ -34,8 +34,8 @@ export const Hero = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="max-w-5xl text-5xl leading-[0.95] text-[#10203a] md:text-7xl"
           >
-            Diseña sesiones, unidades y evaluaciones con una plataforma que se
-            siente seria desde el primer paso.
+            Diseña planificación curricular, sesiones y evaluación por
+            competencias con una plataforma hecha para docentes del Perú.
           </motion.h1>
 
           <motion.p
@@ -44,9 +44,10 @@ export const Hero = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 max-w-2xl text-lg leading-8 text-[#5a6880] md:text-xl"
           >
-            PLANIFIWEB organiza tu acceso, acelera tu producción curricular y
-            te lleva directo a herramientas pensadas para docentes que trabajan
-            con criterio, tiempos ajustados y exigencia real de aula.
+            PLANIFIWEB te ayuda a organizar la planificación curricular CNEB,
+            generar sesiones de aprendizaje, unidades y evaluación por
+            competencias desde un flujo más claro, serio y utilizable en el
+            trabajo real del aula.
           </motion.p>
 
           <motion.div

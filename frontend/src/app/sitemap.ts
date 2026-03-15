@@ -1,20 +1,14 @@
 import type { MetadataRoute } from "next";
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tu-dominio.com";
-const now = new Date();
+import { SITE_URL, publicGuideSummaries, publicIndexableRoutes } from "@/lib/discovery";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    "",
-    "/dashboard",
-    "/login",
-    "/register",
-    "/terminos",
-    "/privacidad",
-  ].map((path) => ({
-    url: `${siteUrl}${path}`,
+  const now = new Date();
+  const guidePaths = new Set(publicGuideSummaries.map((guide) => `/${guide.slug}`));
+
+  return publicIndexableRoutes.map((path) => ({
+    url: `${SITE_URL}${path}`,
     lastModified: now,
-    changeFrequency: path === "" ? "weekly" : "monthly",
-    priority: path === "" ? 1 : 0.7,
+    changeFrequency: path === "/" ? "weekly" : guidePaths.has(path) ? "weekly" : "monthly",
+    priority: path === "/" ? 1 : guidePaths.has(path) ? 0.85 : 0.45,
   }));
 }
