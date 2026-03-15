@@ -9,7 +9,7 @@ import React, {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch, parseApiError } from "@/lib/api";
+import { apiFetch, clearCsrfToken, parseApiError, primeCsrfToken } from "@/lib/api";
 import {
   formatDisplayName,
   getAllowedEmailDomainsLabel,
@@ -138,6 +138,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     void refreshSession();
   }, [refreshSession]);
 
+  useEffect(() => {
+    void primeCsrfToken().catch(() => {
+      // Se reintentara de forma perezosa en la siguiente operacion state-changing.
+    });
+  }, []);
+
   const login = useCallback(async (
     email: string,
     password: string,
@@ -250,6 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("Logout request failed", error);
     } finally {
+      clearCsrfToken();
       setSession(null);
       router.push("/");
     }

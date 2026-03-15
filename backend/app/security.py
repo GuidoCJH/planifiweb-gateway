@@ -1,3 +1,4 @@
+import secrets
 from urllib.parse import urlsplit
 
 from fastapi import Request
@@ -7,7 +8,14 @@ from starlette.responses import Response
 from app.config import Settings
 
 STATE_CHANGING_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
-CSRF_EXEMPT_PATHS = {
+ORIGIN_CHECK_EXEMPT_PATHS = {
+    "/api/auth/login",
+    "/api/auth/register",
+}
+CSRF_ISSUER_PATHS = {
+    "/api/auth/csrf",
+}
+COOKIELESS_CSRF_PATHS = {
     "/api/auth/login",
     "/api/auth/register",
 }
@@ -41,7 +49,7 @@ def should_enforce_origin_check(request: Request, settings: Settings) -> bool:
         return False
     if not request.url.path.startswith("/api/"):
         return False
-    if request.url.path in CSRF_EXEMPT_PATHS:
+    if request.url.path in ORIGIN_CHECK_EXEMPT_PATHS:
         return False
 
     authorization = request.headers.get("authorization", "")
@@ -51,8 +59,43 @@ def should_enforce_origin_check(request: Request, settings: Settings) -> bool:
     return request.cookies.get(settings.session_cookie_name) is not None
 
 
+def should_enforce_csrf(request: Request, settings: Settings) -> bool:
+    if request.method.upper() not in STATE_CHANGING_METHODS:
+        return False
+    if not request.url.path.startswith("/api/"):
+        return False
+    if request.url.path in CSRF_ISSUER_PATHS:
+        return False
+
+    authorization = request.headers.get("authorization", "")
+    if authorization.lower().startswith("bearer "):
+        return False
+
+    if request.url.path in COOKIELESS_CSRF_PATHS:
+        return True
+
+    return request.cookies.get(settings.session_cookie_name) is not None
+
+
+def csrf_token_valid(request: Request, settings: Settings) -> bool:
+    cookie_token = request.cookies.get(settings.csrf_cookie_name)
+    header_token = request.headers.get(settings.csrf_header_name)
+
+    if not cookie_token or not header_token:
+        return False
+
+    return secrets.compare_digest(cookie_token, header_token)
+
+
 def invalid_origin_response() -> JSONResponse:
     return JSONResponse(
         status_code=403,
         content={"detail": "Invalid request origin."},
+    )
+
+
+def invalid_csrf_response() -> JSONResponse:
+    return JSONResponse(
+        status_code=403,
+        content={"detail": "Invalid CSRF token."},
     )

@@ -37,6 +37,10 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class CSRFTokenResponse(BaseModel):
+    csrf_token: str
+
+
 class UserPublic(BaseModel):
     id: int
     name: str

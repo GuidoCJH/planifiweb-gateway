@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.receipt_verifier import ReceiptPrecheckResult, ReceiptVerifier, get_receipt_verifier
 
-from .conftest import auth_headers
+from .conftest import auth_headers, csrf_headers
 
 
 API_PREFIX = "/api"
@@ -15,6 +15,7 @@ PLAN_INSTITUTIONAL = "planifiweb_institucional"
 def _register_and_get_token(client: TestClient, email: str) -> str:
     response = client.post(
         f"{API_PREFIX}/auth/register",
+        headers=csrf_headers(client),
         json={
             "name": "Payment User",
             "email": email,
@@ -187,6 +188,7 @@ def test_receipt_access_requires_owner_or_admin(client: TestClient):
 def test_cookie_authenticated_post_requires_valid_origin(client: TestClient):
     register_response = client.post(
         f"{API_PREFIX}/auth/register",
+        headers=csrf_headers(client),
         json={
             "name": "Cookie User",
             "email": "cookieuser@gmail.com",
@@ -204,6 +206,30 @@ def test_cookie_authenticated_post_requires_valid_origin(client: TestClient):
     )
     assert response.status_code == 403
     assert response.json()["detail"] == "Invalid request origin."
+
+
+def test_cookie_authenticated_post_requires_valid_csrf_token(client: TestClient):
+    register_response = client.post(
+        f"{API_PREFIX}/auth/register",
+        headers=csrf_headers(client),
+        json={
+            "name": "Cookie Csrf User",
+            "email": "cookiecsrf@gmail.com",
+            "password": "StrongPass123",
+            "accept_terms": True,
+            "accept_privacy": True,
+        },
+    )
+    assert register_response.status_code == 200
+
+    response = client.post(
+        f"{API_PREFIX}/payments/upload-proof",
+        headers={"Origin": "http://localhost:3000"},
+        data={"plan": PLAN_PRO},
+        files={"file": ("receipt.png", b"\x89PNG\r\n\x1a\ncookie-csrf-image", "image/png")},
+    )
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Invalid CSRF token."
 
 
 def test_upload_uses_catalog_price_per_plan(client: TestClient):

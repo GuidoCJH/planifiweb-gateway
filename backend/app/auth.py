@@ -1,3 +1,4 @@
+import secrets
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends, Header, HTTPException, Request, Response, status
 from jose import JWTError, jwt
@@ -44,6 +45,25 @@ def set_session_cookie(response: Response, token: str) -> None:
     )
 
 
+def generate_csrf_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def set_csrf_cookie(response: Response, token: str) -> None:
+    settings = get_settings()
+    response.set_cookie(
+        key=settings.csrf_cookie_name,
+        value=token,
+        httponly=False,
+        secure=settings.effective_session_cookie_secure,
+        samesite=settings.effective_session_cookie_samesite,
+        max_age=settings.session_cookie_max_age_seconds,
+        expires=settings.session_cookie_max_age_seconds,
+        path="/",
+        domain=settings.effective_session_cookie_domain,
+    )
+
+
 def clear_session_cookie(response: Response) -> None:
     settings = get_settings()
     response.delete_cookie(
@@ -54,6 +74,30 @@ def clear_session_cookie(response: Response) -> None:
         samesite=settings.effective_session_cookie_samesite,
         httponly=True,
     )
+
+
+def clear_csrf_cookie(response: Response) -> None:
+    settings = get_settings()
+    response.delete_cookie(
+        key=settings.csrf_cookie_name,
+        path="/",
+        domain=settings.effective_session_cookie_domain,
+        secure=settings.effective_session_cookie_secure,
+        samesite=settings.effective_session_cookie_samesite,
+        httponly=False,
+    )
+
+
+def get_or_create_csrf_token(request: Request, response: Response) -> str:
+    settings = get_settings()
+    existing_token = request.cookies.get(settings.csrf_cookie_name)
+    if existing_token:
+        set_csrf_cookie(response, existing_token)
+        return existing_token
+
+    token = generate_csrf_token()
+    set_csrf_cookie(response, token)
+    return token
 
 
 def _credentials_exception() -> HTTPException:

@@ -1,4 +1,8 @@
 const DEFAULT_LOCAL_API_URL = "http://127.0.0.1:8000";
+const STATE_CHANGING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+let csrfTokenCache: string | null = null;
+let csrfTokenPromise: Promise<string> | null = null;
 
 function trimTrailingSlash(value: string): string {
   return value.replace(/\/+$/, "");
@@ -65,14 +69,93 @@ export function buildApiUrl(path: string): string {
   return `${API_BASE_URL}${normalizedPath}`;
 }
 
+function shouldAttachCsrf(path: string, init: RequestInit): boolean {
+  const method = (init.method ?? "GET").toUpperCase();
+  if (!STATE_CHANGING_METHODS.has(method)) {
+    return false;
+  }
+
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return normalizedPath !== "/api/auth/csrf";
+}
+
+async function fetchCsrfToken(): Promise<string> {
+  const response = await fetch(buildApiUrl("/api/auth/csrf"), {
+    method: "GET",
+    cache: "no-store",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseApiError(response));
+  }
+
+  const payload = (await response.json()) as { csrf_token?: unknown };
+  if (typeof payload.csrf_token !== "string" || !payload.csrf_token) {
+    throw new Error("No se pudo obtener el token CSRF.");
+  }
+
+  csrfTokenCache = payload.csrf_token;
+  return payload.csrf_token;
+}
+
+export async function primeCsrfToken(): Promise<string> {
+  if (csrfTokenCache) {
+    return csrfTokenCache;
+  }
+  if (!csrfTokenPromise) {
+    csrfTokenPromise = fetchCsrfToken().finally(() => {
+      csrfTokenPromise = null;
+    });
+  }
+  return csrfTokenPromise;
+}
+
+export function clearCsrfToken(): void {
+  csrfTokenCache = null;
+  csrfTokenPromise = null;
+}
+
 export async function apiFetch(
   path: string,
   init: RequestInit = {},
 ): Promise<Response> {
-  return fetch(buildApiUrl(path), {
+  const headers = new Headers(init.headers ?? {});
+  const needsCsrf = shouldAttachCsrf(path, init);
+
+  if (needsCsrf) {
+    headers.set("X-CSRF-Token", await primeCsrfToken());
+  }
+
+  let response = await fetch(buildApiUrl(path), {
     ...init,
+    headers,
     credentials: "include",
   });
+
+  if (needsCsrf && response.status === 403) {
+    let detail = "";
+    try {
+      const payload = (await response.clone().json()) as { detail?: unknown };
+      if (typeof payload.detail === "string") {
+        detail = payload.detail;
+      }
+    } catch {
+      // noop
+    }
+
+    if (detail === "Invalid CSRF token.") {
+      clearCsrfToken();
+      headers.set("X-CSRF-Token", await primeCsrfToken());
+      response = await fetch(buildApiUrl(path), {
+        ...init,
+        headers,
+        credentials: "include",
+      });
+    }
+  }
+
+  return response;
 }
 
 export async function parseApiError(response: Response): Promise<string> {

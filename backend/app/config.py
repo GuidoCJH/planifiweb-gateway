@@ -33,6 +33,8 @@ class Settings(BaseSettings):
         alias="ACCESS_TOKEN_EXPIRE_MINUTES",
     )
     session_cookie_name: str = Field(default="planifiweb_session", alias="SESSION_COOKIE_NAME")
+    csrf_cookie_name: str = Field(default="planifiweb_csrf", alias="CSRF_COOKIE_NAME")
+    csrf_header_name: str = Field(default="X-CSRF-Token", alias="CSRF_HEADER_NAME")
     session_cookie_secure: bool | None = Field(default=None, alias="SESSION_COOKIE_SECURE")
     session_cookie_samesite: str = Field(default="lax", alias="SESSION_COOKIE_SAMESITE")
     session_cookie_domain: str | None = Field(default=None, alias="SESSION_COOKIE_DOMAIN")
@@ -128,9 +130,11 @@ class Settings(BaseSettings):
 
     @property
     def effective_docs_enabled(self) -> bool:
+        if self.is_production:
+            return False
         if self.api_docs_enabled is not None:
             return self.api_docs_enabled
-        return not self.is_production
+        return True
 
     @property
     def effective_session_cookie_secure(self) -> bool:

@@ -1,14 +1,16 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import func
 from sqlmodel import Session, select
 
 from app.auth import (
     clear_session_cookie,
+    clear_csrf_cookie,
     create_access_token,
     get_current_user,
+    get_or_create_csrf_token,
     get_password_hash,
     set_session_cookie,
     verify_password,
@@ -19,11 +21,17 @@ from app.models import User
 from app.normalization import normalize_email, normalize_person_name
 from app.observability import get_logger, log_event
 from app.rate_limit import rate_limit
-from app.schemas import LegalAcceptanceRequest, SessionState, Token, UserCreate
+from app.schemas import CSRFTokenResponse, LegalAcceptanceRequest, SessionState, Token, UserCreate
 from app.subscription import build_session_state
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 logger = get_logger("planifiweb.auth")
+
+
+@router.get("/csrf", response_model=CSRFTokenResponse)
+def issue_csrf_token(request: Request, response: Response):
+    csrf_token = get_or_create_csrf_token(request, response)
+    return CSRFTokenResponse(csrf_token=csrf_token)
 
 
 @router.post("/register", response_model=Token)
@@ -109,6 +117,7 @@ def login(
 @router.post("/logout")
 def logout(response: Response):
     clear_session_cookie(response)
+    clear_csrf_cookie(response)
     log_event(logger, "auth.logout")
     return {"message": "Session closed"}
 

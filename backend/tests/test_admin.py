@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 
 from app.models import User
 
-from .conftest import auth_headers
+from .conftest import auth_headers, csrf_headers
 
 
 API_PREFIX = "/api"
@@ -13,6 +13,7 @@ PLAN = "planifiweb_pro"
 def _register(client: TestClient, name: str, email: str, password: str) -> str:
     response = client.post(
         f"{API_PREFIX}/auth/register",
+        headers=csrf_headers(client),
         json={
             "name": name,
             "email": email,

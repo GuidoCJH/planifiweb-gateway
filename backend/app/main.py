@@ -13,8 +13,11 @@ from app.rate_limit import get_rate_limit_backend
 from app.routes import admin, ai, auth, payments, subscription, usage, users
 from app.security import (
     apply_security_headers,
+    csrf_token_valid,
+    invalid_csrf_response,
     invalid_origin_response,
     origin_allowed,
+    should_enforce_csrf,
     should_enforce_origin_check,
 )
 from app.storage import get_storage_backend
@@ -44,7 +47,13 @@ app.add_middleware(
     allow_origins=settings.cors_origin_list,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "X-Requested-With",
+        "X-CSRF-Token",
+    ],
 )
 
 api_prefix = "/api"
@@ -64,6 +73,8 @@ async def harden_responses(request: Request, call_next):
         referer = request.headers.get("referer")
         if not ((origin and origin_allowed(origin, settings)) or (referer and origin_allowed(referer, settings))):
             return invalid_origin_response()
+    if should_enforce_csrf(request, settings) and not csrf_token_valid(request, settings):
+        return invalid_csrf_response()
 
     response = await call_next(request)
     apply_security_headers(response, settings)

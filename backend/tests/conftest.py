@@ -103,3 +103,15 @@ def client(test_engine):
 
 def auth_headers(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
+
+
+def fetch_csrf_token(client: TestClient) -> str:
+    response = client.get("/api/auth/csrf")
+    assert response.status_code == 200
+    payload = response.json()
+    assert isinstance(payload.get("csrf_token"), str)
+    return payload["csrf_token"]
+
+
+def csrf_headers(client: TestClient) -> dict[str, str]:
+    return {"X-CSRF-Token": fetch_csrf_token(client)}

@@ -44,13 +44,21 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob:",
       `connect-src ${resolveConnectSources().join(" ")}`,
+      "object-src 'none'",
+      "frame-src 'none'",
       "frame-ancestors 'none'",
+      "form-action 'self'",
+      "manifest-src 'self'",
+      "worker-src 'self' blob:",
       "base-uri 'self'",
+      "upgrade-insecure-requests",
+      "block-all-mixed-content",
     ].join("; "),
   },
 ];
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   turbopack: {
     root: process.cwd(),
   },
