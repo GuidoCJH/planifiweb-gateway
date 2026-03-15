@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
@@ -13,11 +13,17 @@ type AuthMode = "register" | "login";
 interface AccountAccessPanelProps {
   checkoutRequested: boolean;
   initialMode?: AuthMode;
+  inline?: boolean;
+  redirectTo?: string | null;
+  onAuthSuccess?: () => void | Promise<void>;
 }
 
 export const AccountAccessPanel = ({
   checkoutRequested,
   initialMode = "register",
+  inline = false,
+  redirectTo,
+  onAuthSuccess,
 }: AccountAccessPanelProps) => {
   const allowedEmailDomainsLabel = getAllowedEmailDomainsLabel();
   const [mode, setMode] = useState<AuthMode>(initialMode);
@@ -30,10 +36,16 @@ export const AccountAccessPanel = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, register } = useAuth();
 
-  const redirectTarget = useMemo(
-    () => (checkoutRequested ? "/dashboard?checkout=1" : "/dashboard"),
-    [checkoutRequested],
-  );
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
+
+  const redirectTarget = useMemo(() => {
+    if (redirectTo !== undefined) {
+      return redirectTo;
+    }
+    return checkoutRequested ? "/dashboard?checkout=1" : "/dashboard";
+  }, [checkoutRequested, redirectTo]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -53,14 +65,17 @@ export const AccountAccessPanel = ({
       } else {
         await login(email, password, redirectTarget);
       }
+
+      await onAuthSuccess?.();
     } catch (error: unknown) {
       const message =
         error instanceof Error
           ? error.message
           : mode === "register"
-            ? "No se pudo crear la cuenta"
-            : "No se pudo iniciar sesión";
+          ? "No se pudo crear la cuenta"
+          : "No se pudo iniciar sesión";
       setErrorMessage(message);
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -278,9 +293,13 @@ export const AccountAccessPanel = ({
           />
 
           <div className="mt-6 text-center text-xs text-[#8ea0ba]">
-            <Link href="/" className="font-semibold hover:text-white">
-              Volver al inicio
-            </Link>
+            {inline ? (
+              <span>El acceso queda dentro del mismo flujo comercial de la landing.</span>
+            ) : (
+              <Link href="/" className="font-semibold hover:text-white">
+                Volver al inicio
+              </Link>
+            )}
           </div>
         </section>
       </div>

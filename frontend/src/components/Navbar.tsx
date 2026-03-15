@@ -23,14 +23,14 @@ export const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-8 text-sm font-semibold text-[#55637a] md:flex">
-          <Link href="/#features" className="transition-colors hover:text-[#10203a]">
-            Beneficios
+          <Link href="/#solucion" className="transition-colors hover:text-[#10203a]">
+            Solución
           </Link>
-          <Link href="/#guias-publicas" className="transition-colors hover:text-[#10203a]">
-            Guías
+          <Link href="/#acceso" className="transition-colors hover:text-[#10203a]">
+            Acceso
           </Link>
           <Link href="/#pricing" className="transition-colors hover:text-[#10203a]">
-            Suscripción
+            Planes
           </Link>
           <Link href="/terminos" className="transition-colors hover:text-[#10203a]">
             Términos
@@ -51,10 +51,10 @@ export const Navbar = () => {
             Mi cuenta
           </Link>
           <Link
-            href="/dashboard?checkout=1"
+            href="/#pricing"
             className="inline-flex h-11 items-center gap-2 rounded-full bg-[#10203a] px-5 text-sm font-semibold text-[#f7f2e8] shadow-[0_14px_30px_rgba(16,32,58,0.22)] transition hover:bg-[#152947]"
           >
-            Activar acceso <MoveRight className="h-4 w-4" />
+            Ver planes <MoveRight className="h-4 w-4" />
           </Link>
         </div>
       </div>

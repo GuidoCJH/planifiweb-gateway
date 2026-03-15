@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
+  Blocks,
   BookOpen,
   CheckCircle2,
-  ShieldCheck,
+  FileSpreadsheet,
+  PenSquare,
   Sparkles,
 } from "lucide-react";
 
@@ -34,8 +35,7 @@ export const Hero = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="max-w-5xl text-5xl leading-[0.95] text-[#10203a] md:text-7xl"
           >
-            Diseña planificación curricular, sesiones y evaluación por
-            competencias con una plataforma hecha para docentes del Perú.
+            Ordena tu planificación curricular y deja de perder tiempo rehaciendo sesiones, unidades y evaluaciones.
           </motion.h1>
 
           <motion.p
@@ -44,10 +44,7 @@ export const Hero = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 max-w-2xl text-lg leading-8 text-[#5a6880] md:text-xl"
           >
-            PLANIFIWEB te ayuda a organizar la planificación curricular CNEB,
-            generar sesiones de aprendizaje, unidades y evaluación por
-            competencias desde un flujo más claro, serio y utilizable en el
-            trabajo real del aula.
+            PLANIFIWEB reúne planificación, sesiones, unidades, fichas y evaluación por competencias en una ruta más seria, más clara y más utilizable para docentes del Perú que trabajan con CNEB.
           </motion.p>
 
           <motion.div
@@ -56,18 +53,18 @@ export const Hero = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-10 flex flex-col items-start gap-4 sm:flex-row"
           >
-            <Link
-              href="/dashboard?checkout=1"
+            <a
+              href="#acceso"
               className="inline-flex h-14 items-center gap-2 rounded-full bg-[#10203a] px-8 text-base font-semibold text-[#f8f3ea] shadow-[0_18px_34px_rgba(16,32,58,0.22)] transition hover:bg-[#162947]"
             >
-              Activar mi acceso <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/dashboard"
+              Crear cuenta y continuar <ArrowRight className="h-4 w-4" />
+            </a>
+            <a
+              href="#pricing"
               className="inline-flex h-14 items-center gap-2 rounded-full border border-[rgba(16,32,58,0.15)] bg-[rgba(252,250,245,0.92)] px-8 text-base font-semibold text-[#10203a] transition hover:bg-white"
             >
-              Ir a mi cuenta
-            </Link>
+              Ver planes y precios
+            </a>
           </motion.div>
 
           <motion.div
@@ -77,9 +74,9 @@ export const Hero = () => {
             className="mt-12 grid gap-4 sm:grid-cols-3"
           >
             {[
-              { value: "Un solo acceso", label: "para entrar, activar y continuar" },
-              { value: "Menos retrabajo", label: "en sesiones, fichas y evaluaciones" },
-              { value: "Más claridad", label: "en tu flujo de cuenta y suscripción" },
+              { value: "Menos retrabajo", label: "al pasar de la idea al documento pedagógico" },
+              { value: "Más continuidad", label: "entre anual, unidad, sesión y evaluación" },
+              { value: "Un solo flujo", label: "para conocer el servicio, pagar y entrar a la app" },
             ].map((item) => (
               <div
                 key={item.value}
@@ -104,30 +101,30 @@ export const Hero = () => {
           <div className="overflow-hidden rounded-[2.25rem] border border-[rgba(16,32,58,0.10)] bg-[#10203a] text-white shadow-[0_36px_90px_rgba(15,27,48,0.28)]">
             <div className="border-b border-white/10 px-8 py-6">
               <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-sans text-xs uppercase tracking-[0.26em] text-[#cbb38b]">
-                    Ruta de activación
-                  </p>
-                  <h3 className="mt-2 text-3xl text-[#f6efe3]">
-                    Una entrada clara hasta tu espacio de trabajo
-                  </h3>
-                </div>
-                <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#d8e0ee]">
-                  Acceso guiado
+                  <div>
+                    <p className="font-sans text-xs uppercase tracking-[0.26em] text-[#cbb38b]">
+                      Lo que entra en juego
+                    </p>
+                    <h3 className="mt-2 text-3xl text-[#f6efe3]">
+                      Un entorno de trabajo para sostener planificación, sesiones y evaluación
+                    </h3>
+                  </div>
+                  <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#d8e0ee]">
+                    Trabajo docente
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="grid gap-0 md:grid-cols-[0.95fr_1.05fr]">
-              <div className="border-b border-white/10 px-8 py-8 md:border-b-0 md:border-r">
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#34517b] bg-[#162947] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#b6c5da]">
-                  <BookOpen className="h-3.5 w-3.5" /> Desde la cuenta a la app
-                </div>
-                <div className="space-y-4">
+              <div className="grid gap-0 md:grid-cols-[0.95fr_1.05fr]">
+                <div className="border-b border-white/10 px-8 py-8 md:border-b-0 md:border-r">
+                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#34517b] bg-[#162947] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#b6c5da]">
+                    <BookOpen className="h-3.5 w-3.5" /> Qué puedes construir
+                  </div>
+                  <div className="space-y-4">
                   {[
-                    "Crea tu cuenta y activa tu suscripción desde un mismo panel.",
-                    "Sigue el estado de tu acceso sin perderte entre pantallas.",
-                    "Continúa directo a PLANIFIWEB cuando tu cuenta esté lista.",
+                    "Planificación anual y trabajo curricular con mayor continuidad.",
+                    "Unidades, sesiones, fichas y evaluaciones dentro del mismo entorno.",
+                    "Una experiencia más clara desde el acceso hasta la entrada a la app.",
                   ].map((item) => (
                     <div
                       key={item}
@@ -140,50 +137,53 @@ export const Hero = () => {
               </div>
 
               <div className="px-8 py-8">
-                <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-3">
                   {[
                     {
-                      title: "1. Activa tu cuenta",
-                      description: "Registro simple, panel claro y acceso listo para continuar.",
+                      title: "Diagnóstico y planificación",
+                      description: "Ordena el punto de partida y proyecta el trabajo anual con una base más consistente.",
+                      icon: FileSpreadsheet,
                     },
                     {
-                      title: "2. Completa tu suscripción",
-                      description: "Pago y comprobante dentro del mismo flujo, sin pasos innecesarios.",
+                      title: "Unidad y sesión",
+                      description: "Desarrolla experiencias con más relación entre propósito, evidencias y secuencia.",
+                      icon: PenSquare,
                     },
                     {
-                      title: "3. Entra a crear",
-                      description: "Sesiones, unidades, exámenes y rúbricas en un solo entorno.",
+                      title: "Evaluación y salida",
+                      description: "Mantén criterios, instrumentos y exportación dentro del mismo sistema.",
+                      icon: Blocks,
                     },
-                  ].map((step) => (
+                  ].map((step) => {
+                    const Icon = step.icon;
+                    return (
                     <div
                       key={step.title}
                       className="rounded-2xl border border-white/8 bg-white/[0.04] px-5 py-5"
                     >
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#d2b27c]" />
-                        <div>
-                          <div className="font-sans text-base font-semibold text-[#f5efe5]">
-                            {step.title}
-                          </div>
-                          <p className="mt-1 text-sm leading-6 text-[#b8c6da]">
-                            {step.description}
-                          </p>
-                        </div>
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1b3157] text-[#d2b27c]">
+                        <Icon className="h-5 w-5" />
                       </div>
+                      <div className="mt-4 font-sans text-base font-semibold text-[#f5efe5]">
+                        {step.title}
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-[#b8c6da]">
+                        {step.description}
+                      </p>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="mt-6 rounded-[1.75rem] border border-[#35517a] bg-[#142541] px-5 py-5">
                   <div className="flex items-start gap-3">
-                    <ShieldCheck className="mt-0.5 h-5 w-5 text-[#d2b27c]" />
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#d2b27c]" />
                     <div>
                       <div className="font-sans text-sm font-semibold uppercase tracking-[0.18em] text-[#d2b27c]">
-                        Trabajo con criterio
+                        Resultado esperado
                       </div>
                       <p className="mt-2 text-sm leading-6 text-[#d7e1ef]">
-                        Pensado para que el docente sienta orden, confianza y
-                        continuidad antes de entrar a producir su material.
+                        Un flujo comercial más simple: primero entiendes el servicio, luego abres tu cuenta, eliges plan, pagas y entras a trabajar.
                       </p>
                     </div>
                   </div>

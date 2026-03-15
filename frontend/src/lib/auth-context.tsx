@@ -53,14 +53,14 @@ interface AuthContextType {
   session: SessionState | null;
   loading: boolean;
   bootstrapError: string | null;
-  login: (email: string, password: string, redirectTo?: string) => Promise<void>;
+  login: (email: string, password: string, redirectTo?: string | null) => Promise<void>;
   register: (
     name: string,
     email: string,
     password: string,
     acceptTerms: boolean,
     acceptPrivacy: boolean,
-    redirectTo?: string,
+    redirectTo?: string | null,
   ) => Promise<void>;
   acceptLegal: () => Promise<void>;
   refreshSession: () => Promise<SessionState | null>;
@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = useCallback(async (
     email: string,
     password: string,
-    redirectTo = "/dashboard",
+    redirectTo: string | null = "/dashboard",
   ) => {
     const normalizedEmail = email.trim().toLowerCase();
     setLoading(true);
@@ -167,7 +167,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       await fetchSession();
-      router.push(redirectTo.startsWith("/") ? redirectTo : "/dashboard");
+      if (redirectTo) {
+        router.push(redirectTo.startsWith("/") ? redirectTo : "/dashboard");
+      }
     } catch (error: unknown) {
       throw new Error(mapAuthError(error, "No se pudo iniciar sesión."));
     } finally {
@@ -181,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     password: string,
     acceptTerms: boolean,
     acceptPrivacy: boolean,
-    redirectTo = "/dashboard",
+    redirectTo: string | null = "/dashboard",
   ) => {
     const normalizedName = name.trim().replace(/\s+/g, " ");
     const normalizedEmail = email.trim().toLowerCase();
@@ -222,7 +224,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       await fetchSession();
-      router.push(redirectTo.startsWith("/") ? redirectTo : "/dashboard");
+      if (redirectTo) {
+        router.push(redirectTo.startsWith("/") ? redirectTo : "/dashboard");
+      }
     } catch (error: unknown) {
       throw new Error(
         mapAuthError(error, "No se pudo completar el registro."),
