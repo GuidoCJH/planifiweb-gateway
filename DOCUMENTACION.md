@@ -258,7 +258,7 @@ Cambios aplicados:
 ### URLs operativas actuales
 - Gateway: `https://planifiweb-gateway.vercel.app`
 - App: `https://planifiweb-app.vercel.app`
-- Backend objetivo: `https://planifiweb-api.seenode.com`
+- Backend operativo actual: `https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com`
 
 ### Estado de infraestructura confirmado
 - Gateway Next.js en Vercel: publicado

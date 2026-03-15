@@ -9,7 +9,7 @@ param(
     [string]$AppDir = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\PLANIFIWEB")).Path,
     [string]$GatewaySiteUrl = "https://planifiweb-gateway.vercel.app",
     [string]$AppSiteUrl = "https://planifiweb-app.vercel.app",
-    [string]$ApiProxyTarget = "https://planifiweb-api.seenode.com",
+    [string]$ApiProxyTarget = "https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com",
     [switch]$SkipDeploy
 )
 

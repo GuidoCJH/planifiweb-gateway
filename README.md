@@ -78,7 +78,7 @@ Para staging en Vercel usa:
 NEXT_PUBLIC_API_URL=/api
 NEXT_PUBLIC_SITE_URL=https://planifiweb-gateway.vercel.app
 NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS=
-API_PROXY_TARGET=https://planifiweb-api.seenode.com
+API_PROXY_TARGET=https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com
 APP_PROXY_TARGET=https://planifiweb-app.vercel.app
 ```
 

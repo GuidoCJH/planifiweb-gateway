@@ -28,7 +28,7 @@ NEXT_PUBLIC_SITE_URL=https://planifiweb-gateway.vercel.app
 NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS=
 
 # Variables de build para rewrites externos
-API_PROXY_TARGET=https://planifiweb-api.seenode.com
+API_PROXY_TARGET=https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com
 APP_PROXY_TARGET=https://planifiweb-app.vercel.app
 ```
 

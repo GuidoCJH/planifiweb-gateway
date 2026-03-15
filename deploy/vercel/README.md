@@ -17,7 +17,7 @@ Variables:
 NEXT_PUBLIC_API_URL=/api
 NEXT_PUBLIC_SITE_URL=https://planifiweb-gateway.vercel.app
 NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS=
-API_PROXY_TARGET=https://planifiweb-api.seenode.com
+API_PROXY_TARGET=https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com
 APP_PROXY_TARGET=https://planifiweb-app.vercel.app
 ```
 
@@ -43,7 +43,7 @@ El script:
 ## 2. Proyecto SeeNode del backend
 
 Nombre esperado de la app: `planifiweb-api`
-Hostname objetivo: `https://planifiweb-api.seenode.com`
+Host backend operativo actual: `https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com`
 
 Build command:
 
@@ -102,5 +102,5 @@ Notas:
 3. Abrir la URL de OAuth que entrega el script de SeeNode y autorizar GitHub en el workspace.
 4. Reejecutar `deploy/seenode/bootstrap.ps1` para crear `planifiweb-api`.
 5. Pegar el contenido de `.local/seenode/planifiweb-api.env.generated` en el dashboard de variables de la app SeeNode.
-6. Verificar `https://planifiweb-api.seenode.com/health` y `https://planifiweb-api.seenode.com/ready`.
+6. Verificar `https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com/health` y `https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com/ready`.
 7. Volver a probar `https://planifiweb-gateway.vercel.app/api/auth/me`, login, dashboard, checkout Yape y `https://planifiweb-gateway.vercel.app/app/dashboard`.
