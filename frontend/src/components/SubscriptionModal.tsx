@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { createPortal } from "react-dom";
-import { Expand, Smartphone } from "lucide-react";
+import { Download, Expand, Smartphone } from "lucide-react";
 import { UploadProof } from "./UploadProof";
 import { LegalLinks } from "./LegalLinks";
 import {
@@ -47,6 +47,7 @@ export const SubscriptionModal = ({
     icon: Smartphone,
   } as const;
   const ActiveMethodIcon = activeMethod.icon;
+  const qrDownloadName = `planifiweb-${activeMethod.id}-qr.jpg`;
 
   useEffect(() => {
     if (!open || typeof document === "undefined") {
@@ -118,7 +119,7 @@ export const SubscriptionModal = ({
                 </div>
 
                 <div className="mt-5 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-                  <div className="space-y-5">
+                  <div className="order-2 space-y-5 lg:order-1">
                     <section className="rounded-[1.6rem] border border-[rgba(16,32,58,0.08)] bg-[rgba(255,255,255,0.72)] p-4">
                       <div className="enterprise-kicker">1. Método habilitado</div>
                       <div className="mt-3 rounded-[1.25rem] border border-[rgba(16,32,58,0.18)] bg-[#10203a] p-3 text-white shadow-[0_18px_34px_rgba(16,32,58,0.12)]">
@@ -173,7 +174,7 @@ export const SubscriptionModal = ({
                     key={activeMethod.id}
                     initial={{ opacity: 0.7, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="enterprise-card-dark self-start px-4 py-4 sm:px-5 sm:py-5"
+                    className="order-1 enterprise-card-dark self-start px-4 py-4 sm:px-5 sm:py-5 lg:order-2"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
@@ -202,6 +203,19 @@ export const SubscriptionModal = ({
                           className="object-contain p-2"
                           priority
                         />
+                      </div>
+                      <div className="mt-4 lg:hidden">
+                        <a
+                          href={activeMethod.image}
+                          download={qrDownloadName}
+                          className="enterprise-button-secondary flex w-full items-center justify-center gap-2 border-white/12 bg-white/[0.08] text-[#f5efe5] hover:bg-white/[0.14]"
+                        >
+                          <Download className="h-4 w-4" />
+                          Descargar QR
+                        </a>
+                        <p className="mt-2 text-center text-[11px] leading-5 text-[#cdd8e6]">
+                          Si estás pagando desde el mismo celular, descarga el QR para abrirlo desde tu galería o compartirlo a otro dispositivo.
+                        </p>
                       </div>
                       <p className="mx-auto mt-3 max-w-sm text-center text-xs leading-6 text-[#cdd8e6]">
                         {activeMethod.helper} Luego sube abajo la captura o foto del comprobante para cerrar el proceso.
