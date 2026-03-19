@@ -8,7 +8,7 @@ import { Download, Expand, Smartphone } from "lucide-react";
 import { UploadProof } from "./UploadProof";
 import { LegalLinks } from "./LegalLinks";
 import {
-  APP_ENTRY_PATH,
+  APP_ENTRY_URL,
   getSubscriptionPlan,
   MAIN_PLAN,
   SUBSCRIPTION_PLANS,
@@ -158,7 +158,7 @@ export const SubscriptionModal = ({
                         planName={activePlan.name}
                         amount={activePlan.price}
                         onClose={onClose}
-                        successRedirectTo={APP_ENTRY_PATH}
+                        successRedirectTo={APP_ENTRY_URL}
                       />
                       <div className="mt-3 rounded-[1.2rem] border border-[rgba(16,32,58,0.08)] bg-[#f5efe4] px-3 py-3 text-[11px] leading-5 text-[#5f4b2d]">
                         La activación digital no contempla reembolsos por uso parcial ni por expectativa subjetiva sobre el estilo de salida. Las propuestas generadas por IA requieren revisión pedagógica final.

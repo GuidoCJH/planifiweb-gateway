@@ -23,7 +23,9 @@ export const Pricing = ({
     ? "Elegir plan y continuar con mi cuenta"
     : session.can_access_app
       ? "Entrar a la app"
-      : "Elegir plan y pagar por Yape";
+      : session.subscription_status === "pending_review"
+        ? "Ver estado en mi cuenta"
+        : "Elegir plan y pagar por Yape";
 
   return (
     <section id="pricing" className="bg-[#10203a] px-6 py-24 text-white">
@@ -49,11 +51,21 @@ export const Pricing = ({
               <motion.article
                 key={plan.code}
                 whileHover={{ y: -3 }}
-                className={`rounded-[2rem] border p-6 transition ${
+                onClick={() => onSelectPlan(plan.code)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onSelectPlan(plan.code);
+                  }
+                }}
+                tabIndex={0}
+                aria-pressed={selected}
+                className={`cursor-pointer rounded-[2rem] border p-6 outline-none transition focus-visible:ring-2 focus-visible:ring-[#d2b27c] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10203a] ${
                   selected
                     ? "border-[#d2b27c] bg-[#f8f3ea] text-[#10203a] shadow-[0_22px_54px_rgba(7,13,25,0.26)]"
                     : "border-white/10 bg-[#142541] text-[#dbe3f1]"
                 }`}
+                role="button"
               >
                 <div className="flex min-h-[10rem] flex-col gap-4 lg:justify-between">
                   <div>
@@ -122,7 +134,8 @@ export const Pricing = ({
 
                 <div className="mt-5 flex flex-col gap-3">
                   <button
-                    onClick={() => {
+                    onClick={(event) => {
+                      event.stopPropagation();
                       onSelectPlan(plan.code);
                       onContinueWithPlan(plan.code);
                     }}
@@ -134,14 +147,6 @@ export const Pricing = ({
                   >
                     {selected ? flowLabel : `Elegir ${plan.name}`}
                   </button>
-                  {!selected && (
-                    <button
-                      onClick={() => onSelectPlan(plan.code)}
-                      className="text-sm font-semibold text-[#d2b27c] transition hover:text-white"
-                    >
-                      Solo seleccionar para comparar
-                    </button>
-                  )}
                 </div>
               </motion.article>
             );

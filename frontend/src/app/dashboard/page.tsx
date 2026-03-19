@@ -20,7 +20,7 @@ import { AccountAccessPanel } from "@/components/AccountAccessPanel";
 import { LegalAcceptanceCard } from "@/components/LegalAcceptanceCard";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SubscriptionModal } from "@/components/SubscriptionModal";
-import { APP_ENTRY_PATH, requiresCheckout } from "@/lib/subscription";
+import { APP_ENTRY_URL, requiresCheckout } from "@/lib/subscription";
 import { formatDisplayName } from "@/lib/utils";
 
 const STATUS_COPY: Record<string, { title: string; tone: string; message: string }> = {
@@ -199,7 +199,7 @@ function DashboardPageContent() {
                 </Link>
               )}
               <a
-                href={APP_ENTRY_PATH}
+                href={APP_ENTRY_URL}
                 className={`enterprise-button-primary ${session.can_access_app && !legalBlocked ? "" : "pointer-events-none opacity-50"}`}
               >
                 Entrar a la app <ArrowRight className="h-4 w-4" />
@@ -386,7 +386,7 @@ function DashboardPageContent() {
                 </div>
               ) : session.can_access_app ? (
                 <span>
-                  Tu cuenta ya puede continuar a <code>{APP_ENTRY_PATH}</code>.
+                  Tu cuenta ya puede continuar a <code>{APP_ENTRY_URL}</code>.
                 </span>
               ) : session.subscription_status === "pending_review" ? (
                 <span>

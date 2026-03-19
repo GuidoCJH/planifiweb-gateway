@@ -28,7 +28,7 @@ export function GET() {
     "- /register",
     "- /dashboard",
     "- /admin",
-    "- /app/*",
+    "- https://app.planifiweb.guidojh.pro/*",
     "- /api/*",
     "",
     "## Guidance",

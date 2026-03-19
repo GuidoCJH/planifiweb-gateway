@@ -2,20 +2,33 @@
 
 Esta carpeta concentra la configuración operativa real en el estado actual:
 
+- `PAGE LANDING SAAS/hub` en Vercel como sitio principal `guidojh.pro`
 - `PAGE LANDING SAAS/frontend` en Vercel como gateway público
 - `PLANIFIWEB` en Vercel como app separada
 - `PAGE LANDING SAAS/backend` en SeeNode como FastAPI productiva
 
-## 1. Proyecto Vercel del gateway
+## 1. Proyecto Vercel del hub principal
+
+Root directory: `hub`
+URL real: `https://guidojh.pro`
+
+Este proyecto concentra:
+
+- la portada principal de marca
+- la lista de proyectos
+- el enlace principal hacia `https://planifiweb.guidojh.pro`
+- el redirect de `https://www.guidojh.pro` hacia apex
+
+## 2. Proyecto Vercel del gateway
 
 Root directory: `frontend`
-URL real: `https://planifiweb-gateway.vercel.app`
+URL real: `https://planifiweb.guidojh.pro`
 
 Variables:
 
 ```bash
 NEXT_PUBLIC_API_URL=/api
-NEXT_PUBLIC_SITE_URL=https://planifiweb-gateway.vercel.app
+NEXT_PUBLIC_SITE_URL=https://planifiweb.guidojh.pro
 NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS=
 API_PROXY_TARGET=https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com
 APP_PROXY_TARGET=https://planifiweb-app.vercel.app
@@ -34,13 +47,14 @@ $env:VERCEL_TOKEN="..."
 ```
 
 El script:
-- valida que existan `planifiweb-gateway` y `planifiweb-app`
+- valida que existan `guidojh-root`, `planifiweb-gateway` y `planifiweb-app`
 - sincroniza variables de producción por API
-- vincula ambos directorios locales con Vercel
-- redeploya ambos proyectos
+- intenta registrar los dominios `guidojh.pro`, `www.guidojh.pro` y `planifiweb.guidojh.pro`
+- vincula los directorios locales con Vercel
+- redeploya los proyectos
 - guarda el estado en `.local/vercel/bootstrap-state.json`
 
-## 2. Proyecto SeeNode del backend
+## 3. Proyecto SeeNode del backend
 
 Nombre esperado de la app: `planifiweb-api`
 Host backend operativo actual: `https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com`
@@ -77,7 +91,7 @@ Bloqueo real actual:
 - el workspace de SeeNode todavía no tiene `github.authorized=true`
 - mientras eso siga así, la creación de `planifiweb-api` por API falla con `Authentication to GitHub failed`
 
-## 3. Proyecto Vercel de PLANIFIWEB
+## 4. Proyecto Vercel de PLANIFIWEB
 
 Repositorio: `PLANIFIWEB`
 URL real: `https://planifiweb-app.vercel.app`
@@ -86,7 +100,7 @@ Variables recomendadas para producción Hobby:
 
 ```bash
 VITE_API_BASE_URL=/api
-VITE_APP_PUBLIC_URL=https://planifiweb-gateway.vercel.app/app
+VITE_APP_PUBLIC_URL=https://planifiweb.guidojh.pro/app
 ```
 
 Notas:
@@ -95,12 +109,12 @@ Notas:
 - La app standalone se usa para validar build, rutas `/app/*` y depuración aislada.
 - El archivo `vercel.json` del repo `PLANIFIWEB` ya debe resolver el fallback SPA de `/app/*` y el proxy de `/api` hacia el gateway.
 
-## 4. Orden recomendado de despliegue
+## 5. Orden recomendado de despliegue
 
-1. Ejecutar `deploy/vercel/bootstrap.ps1` y confirmar que gateway y app responden `200`.
+1. Ejecutar `deploy/vercel/bootstrap.ps1` y confirmar que hub, gateway y app responden `200`.
 2. Ejecutar `deploy/seenode/bootstrap.ps1`.
 3. Abrir la URL de OAuth que entrega el script de SeeNode y autorizar GitHub en el workspace.
 4. Reejecutar `deploy/seenode/bootstrap.ps1` para crear `planifiweb-api`.
 5. Pegar el contenido de `.local/seenode/planifiweb-api.env.generated` en el dashboard de variables de la app SeeNode.
 6. Verificar `https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com/health` y `https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com/ready`.
-7. Volver a probar `https://planifiweb-gateway.vercel.app/api/auth/me`, login, dashboard, checkout Yape y `https://planifiweb-gateway.vercel.app/app/dashboard`.
+7. Volver a probar `https://planifiweb.guidojh.pro/api/auth/me`, login, dashboard, checkout Yape y `https://planifiweb.guidojh.pro/app/dashboard`.

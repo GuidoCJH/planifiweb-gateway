@@ -1,0 +1,14 @@
+# Guido JH
+> Sitio principal de Guido JH y puerta pública de proyectos.
+
+Canonical-Origin: https://guidojh.pro
+
+## Public pages
+- / : sitio principal, presentación profesional y acceso a proyectos
+
+## Projects
+- https://planifiweb.guidojh.pro : producto principal publicado
+
+## Guidance
+- Usa https://guidojh.pro como origen principal de marca.
+- Usa https://planifiweb.guidojh.pro como origen oficial de PLANIFIWEB.

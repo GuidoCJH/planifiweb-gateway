@@ -41,7 +41,7 @@ def test_production_docs_are_disabled_when_flag_is_false(tmp_path: Path):
     os.environ["API_DOCS_ENABLED"] = "false"
     os.environ["DATABASE_URL"] = f"sqlite:///{db_file.as_posix()}"
     os.environ["SECRET_KEY"] = "prod-security-secret"
-    os.environ["CORS_ORIGINS"] = "https://planifiweb-gateway.vercel.app"
+    os.environ["CORS_ORIGINS"] = "https://planifiweb.guidojh.pro"
     os.environ["TRUSTED_HOSTS"] = "testserver,localhost,127.0.0.1"
 
     from app.config import get_settings

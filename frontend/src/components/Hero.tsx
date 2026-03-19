@@ -137,7 +137,7 @@ export const Hero = () => {
               </div>
 
               <div className="px-8 py-8">
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-4">
                   {[
                     {
                       title: "Diagnóstico y planificación",
@@ -161,15 +161,19 @@ export const Hero = () => {
                       key={step.title}
                       className="rounded-2xl border border-white/8 bg-white/[0.04] px-5 py-5"
                     >
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1b3157] text-[#d2b27c]">
-                        <Icon className="h-5 w-5" />
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#1b3157] text-[#d2b27c]">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-sans text-base font-semibold text-[#f5efe5]">
+                            {step.title}
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-[#b8c6da]">
+                            {step.description}
+                          </p>
+                        </div>
                       </div>
-                      <div className="mt-4 font-sans text-base font-semibold text-[#f5efe5]">
-                        {step.title}
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-[#b8c6da]">
-                        {step.description}
-                      </p>
                     </div>
                     );
                   })}

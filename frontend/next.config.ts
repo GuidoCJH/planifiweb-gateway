@@ -65,26 +65,12 @@ const nextConfig: NextConfig = {
   async rewrites() {
     const rewrites = [];
     const apiTarget = normalizeProxyTarget(process.env.API_PROXY_TARGET);
-    const appTarget = normalizeProxyTarget(process.env.APP_PROXY_TARGET);
 
     if (apiTarget) {
       rewrites.push({
         source: "/api/:path*",
         destination: `${apiTarget}/api/:path*`,
       });
-    }
-
-    if (appTarget) {
-      rewrites.push(
-        {
-          source: "/app",
-          destination: `${appTarget}/app`,
-        },
-        {
-          source: "/app/:path*",
-          destination: `${appTarget}/app/:path*`,
-        },
-      );
     }
 
     return rewrites;

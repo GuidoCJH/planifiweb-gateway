@@ -2,9 +2,17 @@
 
 import Link from "next/link";
 import { MoveRight } from "lucide-react";
-import { APP_ENTRY_PATH } from "@/lib/subscription";
+import { useAuth } from "@/lib/auth-context";
+import { APP_ENTRY_URL } from "@/lib/subscription";
 
 export const Navbar = () => {
+  const { user, session } = useAuth();
+  const appHref = session?.can_access_app
+    ? APP_ENTRY_URL
+    : user
+      ? "/dashboard"
+      : "/#acceso";
+
   return (
     <nav className="fixed left-0 right-0 top-0 z-50 px-4 py-4">
       <div className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-[rgba(16,32,58,0.10)] bg-[rgba(252,250,245,0.92)] px-5 py-3 shadow-[0_18px_45px_rgba(15,27,48,0.08)] backdrop-blur-xl">
@@ -38,7 +46,7 @@ export const Navbar = () => {
           <Link href="/privacidad" className="transition-colors hover:text-[#10203a]">
             Privacidad
           </Link>
-          <a href={APP_ENTRY_PATH} className="transition-colors hover:text-[#10203a]">
+          <a href={appHref} className="transition-colors hover:text-[#10203a]">
             App
           </a>
         </div>

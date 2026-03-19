@@ -19,7 +19,7 @@ import {
 import { useRouter } from "next/navigation";
 import { apiFetch, buildApiUrl, parseApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { APP_ENTRY_PATH } from "@/lib/subscription";
+import { APP_ENTRY_URL } from "@/lib/subscription";
 import { formatDisplayName } from "@/lib/utils";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -272,7 +272,7 @@ function AdminPageContent() {
               <Link href="/dashboard" className="enterprise-button-secondary">
                 Volver a mi cuenta
               </Link>
-              <a href={APP_ENTRY_PATH} className="enterprise-button-primary">
+              <a href={APP_ENTRY_URL} className="enterprise-button-primary">
                 Entrar a la app
               </a>
             </div>

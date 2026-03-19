@@ -6,7 +6,7 @@ Este directorio deja preparado el backend para el estado actual del workspace.
 
 - Proyecto: `planifiweb-platform`
 - PostgreSQL: `planifiweb-platform-db`
-- Host backend objetivo: `planifiweb-api.seenode.com`
+- Host backend objetivo: `web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com`
 
 ## Script principal
 

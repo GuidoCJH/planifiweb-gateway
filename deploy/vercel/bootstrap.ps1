@@ -3,14 +3,19 @@ param(
     [string]$VercelToken = $env:VERCEL_TOKEN,
     [string]$VercelScope = $(if ($env:VERCEL_SCOPE) { $env:VERCEL_SCOPE } else { "guidocjhs-projects" }),
     [string]$VercelTeamId = $(if ($env:VERCEL_TEAM_ID) { $env:VERCEL_TEAM_ID } else { "team_jpUw1TTw5WVpCATjxuHY7g5F" }),
+    [string]$RootProject = "guidojh-root",
     [string]$GatewayProject = "planifiweb-gateway",
     [string]$AppProject = "planifiweb-app",
+    [string]$RootDir = (Resolve-Path (Join-Path $PSScriptRoot "..\..\hub")).Path,
     [string]$GatewayDir = (Resolve-Path (Join-Path $PSScriptRoot "..\..\frontend")).Path,
     [string]$AppDir = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\PLANIFIWEB")).Path,
-    [string]$GatewaySiteUrl = "https://planifiweb-gateway.vercel.app",
+    [string]$RootSiteUrl = "https://guidojh.pro",
+    [string]$RootWwwUrl = "https://www.guidojh.pro",
+    [string]$GatewaySiteUrl = "https://planifiweb.guidojh.pro",
     [string]$AppSiteUrl = "https://planifiweb-app.vercel.app",
     [string]$ApiProxyTarget = "https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com",
-    [switch]$SkipDeploy
+    [switch]$SkipDeploy,
+    [switch]$SkipDomains
 )
 
 $ErrorActionPreference = "Stop"
@@ -45,6 +50,21 @@ function Get-VercelProject([string]$Name) {
     return $response.projects | Where-Object { $_.name -eq $Name } | Select-Object -First 1
 }
 
+function Ensure-VercelProject([string]$Name) {
+    $project = Get-VercelProject -Name $Name
+    if ($project) {
+        return $project
+    }
+
+    $body = @{
+        name = $Name
+    } | ConvertTo-Json -Compress
+
+    Write-Step "Creando proyecto Vercel '$Name'"
+    Invoke-VercelApi -Method Post -Path "/v10/projects?teamId=$VercelTeamId" -Body $body | Out-Null
+    return Get-VercelProject -Name $Name
+}
+
 function Upsert-VercelEnv {
     param(
         [Parameter(Mandatory = $true)][string]$ProjectId,
@@ -60,6 +80,32 @@ function Upsert-VercelEnv {
     } | ConvertTo-Json -Compress
 
     Invoke-VercelApi -Method Post -Path "/v10/projects/$ProjectId/env?teamId=$VercelTeamId&upsert=true" -Body $body | Out-Null
+}
+
+function Ensure-VercelProjectDomain {
+    param(
+        [Parameter(Mandatory = $true)][string]$ProjectId,
+        [Parameter(Mandatory = $true)][string]$Domain
+    )
+
+    $body = @{
+        name = $Domain
+    } | ConvertTo-Json -Compress
+
+    try {
+        Invoke-VercelApi -Method Post -Path "/v10/projects/$ProjectId/domains?teamId=$VercelTeamId" -Body $body | Out-Null
+        return [pscustomobject]@{
+            domain = $Domain
+            state = "attached"
+        }
+    }
+    catch {
+        return [pscustomobject]@{
+            domain = $Domain
+            state = "pending_or_existing"
+            detail = $_.Exception.Message
+        }
+    }
 }
 
 function Invoke-VercelCli {
@@ -84,6 +130,10 @@ if (-not $VercelToken) {
     throw "Define VERCEL_TOKEN antes de ejecutar este script."
 }
 
+if (-not (Test-Path $RootDir)) {
+    throw "No existe el directorio del hub principal: $RootDir"
+}
+
 if (-not (Test-Path $GatewayDir)) {
     throw "No existe el directorio del gateway: $GatewayDir"
 }
@@ -106,16 +156,9 @@ $appEnv = [ordered]@{
 }
 
 Write-Step "Verificando proyectos Vercel"
-$gateway = Get-VercelProject -Name $GatewayProject
-$app = Get-VercelProject -Name $AppProject
-
-if (-not $gateway) {
-    throw "No existe el proyecto Vercel '$GatewayProject'. Crealo primero o importa el repo y vuelve a ejecutar el script."
-}
-
-if (-not $app) {
-    throw "No existe el proyecto Vercel '$AppProject'. Crealo primero o importa el repo y vuelve a ejecutar el script."
-}
+$root = Ensure-VercelProject -Name $RootProject
+$gateway = Ensure-VercelProject -Name $GatewayProject
+$app = Ensure-VercelProject -Name $AppProject
 
 Write-Step "Sincronizando variables del gateway"
 foreach ($entry in $gatewayEnv.GetEnumerator()) {
@@ -127,7 +170,22 @@ foreach ($entry in $appEnv.GetEnumerator()) {
     Upsert-VercelEnv -ProjectId $app.id -Key $entry.Key -Value $entry.Value
 }
 
+if (-not $SkipDomains) {
+    Write-Step "Registrando dominios personalizados"
+    $domainResults = @(
+        Ensure-VercelProjectDomain -ProjectId $root.id -Domain ([uri]$RootSiteUrl).Host
+        Ensure-VercelProjectDomain -ProjectId $root.id -Domain ([uri]$RootWwwUrl).Host
+        Ensure-VercelProjectDomain -ProjectId $gateway.id -Domain ([uri]$GatewaySiteUrl).Host
+    )
+} else {
+    $domainResults = @()
+}
+
 if (-not $SkipDeploy) {
+    Write-Step "Vinculando y desplegando hub principal"
+    Invoke-VercelCli -WorkingDirectory $RootDir -Arguments @("link", "--yes", "--project", $RootProject)
+    Invoke-VercelCli -WorkingDirectory $RootDir -Arguments @("deploy", "--prod", "--yes")
+
     Write-Step "Vinculando y desplegando gateway"
     Invoke-VercelCli -WorkingDirectory $GatewayDir -Arguments @("link", "--yes", "--project", $GatewayProject)
     Invoke-VercelCli -WorkingDirectory $GatewayDir -Arguments @("deploy", "--prod", "--yes")
@@ -139,6 +197,7 @@ if (-not $SkipDeploy) {
 
 Write-Step "Ejecutando smoke checks HTTP"
 $checks = @(
+    @{ Name = "Hub /"; Url = $RootSiteUrl },
     @{ Name = "Gateway /"; Url = $GatewaySiteUrl },
     @{ Name = "Gateway /app/dashboard"; Url = "$GatewaySiteUrl/app/dashboard" },
     @{ Name = "PLANIFIWEB standalone"; Url = "$AppSiteUrl/app/dashboard" }
@@ -183,6 +242,10 @@ $state = [ordered]@{
     generated_at = (Get-Date).ToString("s")
     team_id = $VercelTeamId
     scope = $VercelScope
+    root = @{
+        project_id = $root.id
+        site_url = $RootSiteUrl
+    }
     gateway = @{
         project_id = $gateway.id
         site_url = $GatewaySiteUrl
@@ -193,6 +256,7 @@ $state = [ordered]@{
         site_url = $AppSiteUrl
         env = $appEnv
     }
+    domains = $domainResults
     checks = $results
     api_auth_me_status = $apiStatus
 }

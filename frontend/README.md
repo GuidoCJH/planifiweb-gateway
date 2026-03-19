@@ -1,35 +1,28 @@
 # Frontend Gateway - PLANIFIWEB
 
-Landing comercial, centro de cuenta y puerta de entrada al producto.
+Next.js público para:
 
-## Responsabilidades
+- landing comercial
+- login y registro
+- dashboard de cuenta
+- checkout Yape
+- panel admin
+- proxy `/api` hacia Koyeb
 
-- captar usuarios y presentar la propuesta comercial
-- registrar e iniciar sesión sin salir del flujo principal
-- exigir aceptación legal cuando corresponda
-- mostrar estado de licencia y uso en `/dashboard`
-- permitir suscripción y carga de comprobantes
-- exponer panel admin en `/admin`
-- redirigir a `PLANIFIWEB` en `/app`
-
-## Seguridad y arquitectura
-
-- sesión basada en cookie `HttpOnly`
-- consumo del backend bajo `/api`
-- enlaces visibles a `Términos`, `Privacidad` y soporte Telegram
-- cookies solo esenciales; no se usan cookies publicitarias ni analíticas
-
-## Variables de entorno
+## Variables
 
 ```bash
-# Gateway en Vercel: trabaja por mismo origen usando /api.
 NEXT_PUBLIC_API_URL=/api
-NEXT_PUBLIC_SITE_URL=https://planifiweb-gateway.vercel.app
+NEXT_PUBLIC_SITE_URL=https://planifiweb.guidojh.pro
+NEXT_PUBLIC_APP_URL=https://app.planifiweb.guidojh.pro
 NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS=
-
-# Variables de build para rewrites externos
 API_PROXY_TARGET=https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com
-APP_PROXY_TARGET=https://planifiweb-app.vercel.app
+```
+
+En produccion:
+
+```bash
+API_PROXY_TARGET=https://<tu-servicio>.koyeb.app
 ```
 
 ## Desarrollo
@@ -47,16 +40,10 @@ npm run typecheck
 npm run build
 ```
 
-## Vercel Hobby en produccion temporal
+## Netlify
 
-```bash
-npm ci
-npm run build
-npm run start
-```
-
-En Vercel:
-- root directory: `frontend`
-- `/api/*` se resuelve por rewrite hacia SeeNode
-- `/app/*` se resuelve por rewrite hacia el proyecto real de `PLANIFIWEB`
-- URL operativa actual: `https://planifiweb-gateway.vercel.app`
+- root directory del site: `frontend`
+- framework: Next.js
+- plugin: `@netlify/plugin-nextjs`
+- dominio productivo: `https://planifiweb.guidojh.pro`
+- la app real ya no vive bajo `/app`; ahora va a `https://app.planifiweb.guidojh.pro`

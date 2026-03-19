@@ -1,3 +1,5 @@
+import { APP_PUBLIC_URL } from "@/lib/discovery";
+
 export type SubscriptionPlan = {
   code: string;
   name: string;
@@ -52,18 +54,26 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 ];
 
 export const MAIN_PLAN = SUBSCRIPTION_PLANS[1];
-export const APP_ENTRY_PATH = "/app/dashboard";
+export const APP_ENTRY_PATH = "/dashboard";
+export const APP_ENTRY_URL = `${APP_PUBLIC_URL}${APP_ENTRY_PATH}`;
 
 export function getSubscriptionPlan(planCode?: string | null): SubscriptionPlan {
   const normalizedCode = (planCode || "").trim().toLowerCase();
   return SUBSCRIPTION_PLANS.find((plan) => plan.code === normalizedCode) ?? MAIN_PLAN;
 }
 
-export function goToApp(path: string = APP_ENTRY_PATH): void {
+export function goToApp(path: string = APP_ENTRY_URL): void {
   if (typeof window === "undefined") {
     return;
   }
-  window.location.assign(path);
+
+  if (/^https?:\/\//i.test(path)) {
+    window.location.assign(path);
+    return;
+  }
+
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  window.location.assign(`${APP_PUBLIC_URL}${normalizedPath}`);
 }
 
 export function requiresCheckout(status: string): boolean {

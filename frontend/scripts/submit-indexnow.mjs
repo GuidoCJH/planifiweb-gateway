@@ -1,6 +1,6 @@
 const INDEXNOW_KEY = process.env.INDEXNOW_KEY || "8ecf566c05434da9a552759d5c827b91";
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://planifiweb-gateway.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://planifiweb.guidojh.pro";
 
 const defaultPaths = [
   "/",

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { LegalLinks } from "@/components/LegalLinks";
-import { publicGuideSummaries } from "@/lib/discovery";
+import { ROOT_HUB_URL, publicGuideSummaries } from "@/lib/discovery";
 
 export const SiteFooter = () => {
   return (
@@ -35,6 +35,12 @@ export const SiteFooter = () => {
             className="font-semibold text-[#10203a] transition hover:text-[#8a6840]"
           >
             Soporte por Telegram
+          </Link>
+          <Link
+            href={ROOT_HUB_URL}
+            className="font-semibold text-[#10203a] transition hover:text-[#8a6840]"
+          >
+            Sitio principal
           </Link>
         </div>
 

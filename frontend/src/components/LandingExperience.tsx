@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   BookOpenCheck,
@@ -18,7 +19,7 @@ import { Hero } from "@/components/Hero";
 import { LegalAcceptanceCard } from "@/components/LegalAcceptanceCard";
 import { Pricing } from "@/components/Pricing";
 import {
-  APP_ENTRY_PATH,
+  APP_ENTRY_URL,
   getSubscriptionPlan,
   goToApp,
   isActiveSubscription,
@@ -35,6 +36,7 @@ type AccessMode = "register" | "login";
 
 export const LandingExperience = () => {
   const { user, session, loading } = useAuth();
+  const router = useRouter();
   const accessSectionRef = useRef<HTMLElement | null>(null);
   const [selectedPlanCode, setSelectedPlanCode] = useState(() => {
     if (typeof window === "undefined") {
@@ -106,12 +108,12 @@ export const LandingExperience = () => {
     }
 
     if (isActiveSubscription(session.subscription_status)) {
-      goToApp(APP_ENTRY_PATH);
+      goToApp(APP_ENTRY_URL);
       return;
     }
 
     if (isPendingReview(session.subscription_status)) {
-      goToApp(APP_ENTRY_PATH);
+      router.push("/dashboard");
       return;
     }
 
@@ -119,6 +121,11 @@ export const LandingExperience = () => {
 
     if (session.legal.acceptance_required) {
       scrollToAccess();
+      return;
+    }
+
+    if (!requiresCheckout(session.subscription_status)) {
+      router.push("/dashboard");
       return;
     }
 
@@ -283,7 +290,7 @@ export const LandingExperience = () => {
 
                   <div className="mt-8 flex flex-wrap gap-3">
                     {session.can_access_app ? (
-                      <a href={APP_ENTRY_PATH} className="enterprise-button-primary">
+                      <a href={APP_ENTRY_URL} className="enterprise-button-primary">
                         Entrar a la app <ArrowRight className="h-4 w-4" />
                       </a>
                     ) : (

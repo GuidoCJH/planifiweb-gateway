@@ -1,9 +1,13 @@
-export const FALLBACK_SITE_URL = "https://planifiweb-gateway.vercel.app";
+export const FALLBACK_SITE_URL = "https://planifiweb.guidojh.pro";
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.trim() || FALLBACK_SITE_URL;
+export const FALLBACK_APP_URL = "https://app.planifiweb.guidojh.pro";
+export const APP_PUBLIC_URL =
+  process.env.NEXT_PUBLIC_APP_URL?.trim() || FALLBACK_APP_URL;
 export const SITE_NAME = "PLANIFIWEB";
 export const SITE_DESCRIPTION =
   "PLANIFIWEB ayuda a docentes del Perú a organizar planificación curricular CNEB, sesiones de aprendizaje, unidades y evaluación por competencias desde una misma plataforma.";
+export const ROOT_HUB_URL = "https://guidojh.pro";
 export const TELEGRAM_SUPPORT_URL = "https://t.me/guidojh";
 export const INDEXNOW_KEY = "8ecf566c05434da9a552759d5c827b91";
 
