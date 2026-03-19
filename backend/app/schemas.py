@@ -41,6 +41,10 @@ class CSRFTokenResponse(BaseModel):
     csrf_token: str
 
 
+class MessageResponse(BaseModel):
+    message: str
+
+
 class UserPublic(BaseModel):
     id: int
     name: str
@@ -175,6 +179,27 @@ class PaymentAdminListResponse(BaseModel):
 class LegalAcceptanceRequest(BaseModel):
     accept_terms: bool
     accept_privacy: bool
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(min_length=8, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+    confirm_password: str = Field(min_length=8, max_length=128)
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email_value(cls, value: EmailStr) -> str:
+        return normalize_email(str(value))
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=20, max_length=255)
+    new_password: str = Field(min_length=8, max_length=128)
+    confirm_password: str = Field(min_length=8, max_length=128)
 
 
 class AIGenerateRequest(BaseModel):

@@ -85,6 +85,11 @@ class Settings(BaseSettings):
     )
     payment_yape_phone_last3: str = Field(default="929", alias="PAYMENT_YAPE_PHONE_LAST3")
     payment_amount_tolerance: float = Field(default=0.01, alias="PAYMENT_AMOUNT_TOLERANCE")
+    resend_api_key: str | None = Field(default=None, alias="RESEND_API_KEY")
+    resend_from_email: str = Field(default="noreply@guidojh.pro", alias="RESEND_FROM_EMAIL")
+    resend_from_name: str = Field(default="PLANIFIWEB", alias="RESEND_FROM_NAME")
+    password_reset_token_ttl_minutes: int = Field(default=60, alias="PASSWORD_RESET_TOKEN_TTL_MINUTES")
+    password_reset_url_base: str | None = Field(default=None, alias="PASSWORD_RESET_URL_BASE")
 
     @property
     def is_production(self) -> bool:
@@ -351,6 +356,12 @@ class Settings(BaseSettings):
     @property
     def effective_payment_amount_tolerance(self) -> float:
         return max(float(self.payment_amount_tolerance), 0.0)
+
+    @property
+    def effective_password_reset_url_base(self) -> str:
+        if self.password_reset_url_base and self.password_reset_url_base.strip():
+            return self.password_reset_url_base.strip().rstrip("/")
+        return f"{self.public_app_url.rstrip('/')}/restablecer-contrasena"
 
 
 @lru_cache

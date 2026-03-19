@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from urllib.parse import parse_qs, urlparse
 
 from .conftest import auth_headers, csrf_headers
 
@@ -43,6 +44,39 @@ def test_register_login_and_me(client: TestClient):
     )
     assert login_response.status_code == 200
     assert login_response.json()["token_type"] == "bearer"
+
+
+def test_login_returns_not_found_for_unknown_email(client: TestClient):
+    response = client.post(
+        f"{API_PREFIX}/auth/login",
+        data={"username": "missing@gmail.com", "password": "StrongPass123"},
+        headers=csrf_headers(client),
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Correo no registrado"
+
+
+def test_login_returns_specific_message_for_wrong_password(client: TestClient):
+    payload = {
+        "name": "Test User",
+        "email": "wrongpass@gmail.com",
+        "password": "StrongPass123",
+        "accept_terms": True,
+        "accept_privacy": True,
+    }
+    client.post(
+        f"{API_PREFIX}/auth/register",
+        json=payload,
+        headers=csrf_headers(client),
+    )
+
+    response = client.post(
+        f"{API_PREFIX}/auth/login",
+        data={"username": payload["email"], "password": "BadPass123"},
+        headers=csrf_headers(client),
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Contraseña incorrecta"
 
 
 def test_register_rejects_when_legal_docs_not_accepted(client: TestClient):
@@ -120,3 +154,144 @@ def test_register_rejects_missing_csrf_token(client: TestClient):
     response = client.post(f"{API_PREFIX}/auth/register", json=payload)
     assert response.status_code == 403
     assert response.json()["detail"] == "Invalid CSRF token."
+
+
+def test_change_password_requires_correct_current_password(client: TestClient):
+    payload = {
+        "name": "Password User",
+        "email": "password-user@gmail.com",
+        "password": "StrongPass123",
+        "accept_terms": True,
+        "accept_privacy": True,
+    }
+    register_response = client.post(
+        f"{API_PREFIX}/auth/register",
+        json=payload,
+        headers=csrf_headers(client),
+    )
+    token = register_response.json()["access_token"]
+
+    response = client.post(
+        f"{API_PREFIX}/auth/change-password",
+        json={
+            "current_password": "WrongPass123",
+            "new_password": "NewStrongPass123",
+            "confirm_password": "NewStrongPass123",
+        },
+        headers={**auth_headers(token), **csrf_headers(client)},
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "La contraseña actual es incorrecta."
+
+
+def test_change_password_updates_login_credentials(client: TestClient):
+    payload = {
+        "name": "Password User",
+        "email": "password-change@gmail.com",
+        "password": "StrongPass123",
+        "accept_terms": True,
+        "accept_privacy": True,
+    }
+    register_response = client.post(
+        f"{API_PREFIX}/auth/register",
+        json=payload,
+        headers=csrf_headers(client),
+    )
+    token = register_response.json()["access_token"]
+
+    response = client.post(
+        f"{API_PREFIX}/auth/change-password",
+        json={
+            "current_password": payload["password"],
+            "new_password": "NewStrongPass123",
+            "confirm_password": "NewStrongPass123",
+        },
+        headers={**auth_headers(token), **csrf_headers(client)},
+    )
+    assert response.status_code == 200
+
+    old_login = client.post(
+        f"{API_PREFIX}/auth/login",
+        data={"username": payload["email"], "password": payload["password"]},
+        headers=csrf_headers(client),
+    )
+    assert old_login.status_code == 401
+
+    new_login = client.post(
+        f"{API_PREFIX}/auth/login",
+        data={"username": payload["email"], "password": "NewStrongPass123"},
+        headers=csrf_headers(client),
+    )
+    assert new_login.status_code == 200
+
+
+def test_password_reset_flow_sends_email_and_resets_password(client: TestClient):
+    from app.email_service import get_email_service
+    from app.main import app
+
+    class FakeEmailService:
+        def __init__(self):
+            self.sent_urls = []
+
+        def send_password_reset_email(self, *, to_email: str, to_name: str, token: str) -> None:
+            self.sent_urls.append(
+                f"https://planifiweb.guidojh.pro/restablecer-contrasena?token={token}"
+            )
+
+    fake_service = FakeEmailService()
+    app.dependency_overrides[get_email_service] = lambda: fake_service
+    try:
+        payload = {
+            "name": "Reset User",
+            "email": "reset-user@gmail.com",
+            "password": "StrongPass123",
+            "accept_terms": True,
+            "accept_privacy": True,
+        }
+        client.post(
+            f"{API_PREFIX}/auth/register",
+            json=payload,
+            headers=csrf_headers(client),
+        )
+
+        forgot_response = client.post(
+            f"{API_PREFIX}/auth/forgot-password",
+            json={"email": payload["email"]},
+            headers={**csrf_headers(client), "Origin": "http://localhost:3000"},
+        )
+        assert forgot_response.status_code == 200
+        assert fake_service.sent_urls
+
+        parsed = urlparse(fake_service.sent_urls[0])
+        token = parse_qs(parsed.query)["token"][0]
+
+        reset_response = client.post(
+            f"{API_PREFIX}/auth/reset-password",
+            json={
+                "token": token,
+                "new_password": "ResetStrongPass123",
+                "confirm_password": "ResetStrongPass123",
+            },
+            headers={**csrf_headers(client), "Origin": "http://localhost:3000"},
+        )
+        assert reset_response.status_code == 200
+
+        reused_response = client.post(
+            f"{API_PREFIX}/auth/reset-password",
+            json={
+                "token": token,
+                "new_password": "AnotherPass123",
+                "confirm_password": "AnotherPass123",
+            },
+            headers={**csrf_headers(client), "Origin": "http://localhost:3000"},
+        )
+        assert reused_response.status_code == 400
+
+        login_response = client.post(
+            f"{API_PREFIX}/auth/login",
+            data={"username": payload["email"], "password": "ResetStrongPass123"},
+            headers=csrf_headers(client),
+        )
+        assert login_response.status_code == 200
+    finally:
+        app.dependency_overrides.pop(get_email_service, None)

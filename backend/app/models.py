@@ -43,6 +43,7 @@ class User(SQLModel, table=True):
     subscriptions: List["Subscription"] = Relationship(back_populates="user")
     daily_usage: List["AIUsageDaily"] = Relationship(back_populates="user")
     generation_logs: List["AIGenerationLog"] = Relationship(back_populates="user")
+    password_reset_tokens: List["PasswordResetToken"] = Relationship(back_populates="user")
 
 
 class Subscription(SQLModel, table=True):
@@ -164,3 +165,18 @@ class RateLimitWindow(SQLModel, table=True):
     expires_at: datetime = Field(nullable=False, index=True)
     created_at: datetime = Field(default_factory=utcnow, nullable=False)
     updated_at: datetime = Field(default_factory=utcnow, nullable=False)
+
+
+class PasswordResetToken(SQLModel, table=True):
+    __tablename__ = "password_reset_token"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id", nullable=False, index=True)
+    token_hash: str = Field(nullable=False, index=True, unique=True, max_length=64)
+    expires_at: datetime = Field(nullable=False, index=True)
+    used_at: Optional[datetime] = Field(default=None, nullable=True, index=True)
+    requested_ip: Optional[str] = Field(default=None, nullable=True, max_length=64)
+    requested_user_agent: Optional[str] = Field(default=None, nullable=True, max_length=512)
+    created_at: datetime = Field(default_factory=utcnow, nullable=False)
+
+    user: Optional[User] = Relationship(back_populates="password_reset_tokens")

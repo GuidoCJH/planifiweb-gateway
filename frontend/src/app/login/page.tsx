@@ -17,6 +17,7 @@ function LoginPageContent() {
   const { login, bootstrapError } = useAuth();
   const searchParams = useSearchParams();
   const isSubscribeIntent = searchParams.get("intent") === "subscribe";
+  const resetSuccess = searchParams.get("reset") === "success";
   const redirectTarget = isSubscribeIntent ? "/dashboard?checkout=1" : "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,6 +100,11 @@ function LoginPageContent() {
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+              {resetSuccess && (
+                <p className="rounded-2xl border border-[rgba(43,122,91,0.32)] bg-[rgba(19,78,74,0.24)] px-4 py-3 text-center text-sm text-[#d8fff3]">
+                  La contraseña se actualizó. Ya puedes iniciar sesión con la nueva clave.
+                </p>
+              )}
               {bootstrapError && (
                 <p className="rounded-2xl border border-[rgba(239,68,68,0.32)] bg-[rgba(127,29,29,0.28)] px-4 py-3 text-center text-sm text-[#ffd7d7]">
                   {bootstrapError}
@@ -129,6 +135,15 @@ function LoginPageContent() {
                   className="enterprise-input bg-[rgba(255,255,255,0.92)]"
                   placeholder="********"
                 />
+              </div>
+
+              <div className="flex justify-end">
+                <Link
+                  href="/recuperar-acceso"
+                  className="text-sm font-semibold text-[#d2b27c] transition hover:text-white"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
               </div>
 
               <button

@@ -18,6 +18,7 @@ import {
 import { apiFetch, parseApiError } from "@/lib/api";
 import { AccountAccessPanel } from "@/components/AccountAccessPanel";
 import { LegalAcceptanceCard } from "@/components/LegalAcceptanceCard";
+import { PasswordSecurityCard } from "@/components/PasswordSecurityCard";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SubscriptionModal } from "@/components/SubscriptionModal";
 import { APP_ENTRY_URL, requiresCheckout } from "@/lib/subscription";
@@ -265,6 +266,8 @@ function DashboardPageContent() {
         )}
 
         {legalBlocked && <LegalAcceptanceCard />}
+
+        <PasswordSecurityCard />
 
         <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {[

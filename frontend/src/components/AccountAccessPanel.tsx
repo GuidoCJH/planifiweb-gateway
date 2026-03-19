@@ -246,6 +246,17 @@ export const AccountAccessPanel = ({
               />
             </div>
 
+            {mode === "login" && (
+              <div className="flex justify-end">
+                <Link
+                  href="/recuperar-acceso"
+                  className="text-sm font-semibold text-[#d2b27c] transition hover:text-white"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
+            )}
+
             {mode === "register" && (
               <LegalConsentFields
                 acceptTerms={acceptTerms}

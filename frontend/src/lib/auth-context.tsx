@@ -63,6 +63,17 @@ interface AuthContextType {
     redirectTo?: string | null,
   ) => Promise<void>;
   acceptLegal: () => Promise<void>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => Promise<string>;
+  requestPasswordReset: (email: string) => Promise<string>;
+  resetPassword: (
+    token: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => Promise<string>;
   refreshSession: () => Promise<SessionState | null>;
   logout: () => Promise<void>;
 }
@@ -254,6 +265,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setSession(data);
   }, []);
 
+  const changePassword = useCallback(async (
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => {
+    const response = await apiFetch("/api/auth/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+        confirm_password: confirmPassword,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
+    }
+
+    const data = (await response.json()) as { message: string };
+    return data.message;
+  }, []);
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    const response = await apiFetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim().toLowerCase() }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
+    }
+
+    const data = (await response.json()) as { message: string };
+    return data.message;
+  }, []);
+
+  const resetPassword = useCallback(async (
+    token: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => {
+    const response = await apiFetch("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        new_password: newPassword,
+        confirm_password: confirmPassword,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
+    }
+
+    const data = (await response.json()) as { message: string };
+    return data.message;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await apiFetch("/api/auth/logout", { method: "POST" });
@@ -275,10 +347,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       login,
       register,
       acceptLegal,
+      changePassword,
+      requestPasswordReset,
+      resetPassword,
       refreshSession,
       logout,
     }),
-    [acceptLegal, bootstrapError, loading, login, logout, refreshSession, register, session],
+    [
+      acceptLegal,
+      bootstrapError,
+      changePassword,
+      loading,
+      login,
+      logout,
+      refreshSession,
+      register,
+      requestPasswordReset,
+      resetPassword,
+      session,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
