@@ -8,7 +8,8 @@ from app.models import Payment, Subscription, User  # noqa: F401
 
 config = context.config
 settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.effective_database_url)
+# Alembic stores values in ConfigParser, which treats "%" as interpolation.
+config.set_main_option("sqlalchemy.url", settings.effective_database_url.replace("%", "%%"))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

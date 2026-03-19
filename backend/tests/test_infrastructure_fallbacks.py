@@ -31,7 +31,7 @@ def test_rate_limit_backend_uses_database_in_production_without_redis(monkeypatc
         get_settings.cache_clear()
 
 
-def test_trusted_hosts_include_seenode_wildcards(monkeypatch: pytest.MonkeyPatch):
+def test_trusted_hosts_include_provider_wildcards(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("TRUSTED_HOSTS", "planifiweb-api.seenode.com")
     get_settings.cache_clear()
@@ -40,6 +40,8 @@ def test_trusted_hosts_include_seenode_wildcards(monkeypatch: pytest.MonkeyPatch
         trusted_hosts = get_settings().trusted_host_list
         assert "*.apps.run-on-seenode.com" in trusted_hosts
         assert "*.seenode.com" in trusted_hosts
+        assert "*.koyeb.app" in trusted_hosts
+        assert "169.254.254.254" in trusted_hosts
     finally:
         get_settings.cache_clear()
 

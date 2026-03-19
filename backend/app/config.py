@@ -112,18 +112,23 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_list(self) -> List[str]:
-        origins = [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        normalized = self.cors_origins.replace("\r", "\n").replace(";", "\n").replace(",", "\n")
+        origins = [origin.strip() for origin in normalized.split("\n") if origin.strip()]
         if self.is_production and "*" in origins:
             raise ValueError("CORS_ORIGINS cannot include '*' in production")
         return origins or ["http://localhost:3000"]
 
     @property
     def trusted_host_list(self) -> List[str]:
-        hosts = [host.strip() for host in self.trusted_hosts.split(",") if host.strip()]
-        provider_defaults = ["*.apps.run-on-seenode.com", "*.seenode.com"]
+        normalized = self.trusted_hosts.replace("\r", "\n").replace(";", "\n").replace(",", "\n")
+        hosts = [host.strip() for host in normalized.split("\n") if host.strip()]
+        provider_defaults = ["*.apps.run-on-seenode.com", "*.seenode.com", "*.koyeb.app"]
         for provider_host in provider_defaults:
             if provider_host not in hosts:
                 hosts.append(provider_host)
+        # Koyeb health checks may hit the app using a link-local host header.
+        if "*.koyeb.app" in hosts and "169.254.254.254" not in hosts:
+            hosts.append("169.254.254.254")
         if self.is_production and "*" in hosts:
             raise ValueError("TRUSTED_HOSTS cannot include '*' in production")
         return hosts or ["localhost", "127.0.0.1"]
@@ -175,9 +180,10 @@ class Settings(BaseSettings):
 
     @property
     def allowed_receipt_types(self) -> set[str]:
+        normalized = self.allowed_receipt_content_types.replace("\r", "\n").replace(";", "\n").replace(",", "\n")
         return {
             content_type.strip().lower()
-            for content_type in self.allowed_receipt_content_types.split(",")
+            for content_type in normalized.split("\n")
             if content_type.strip()
         }
 
@@ -234,7 +240,8 @@ class Settings(BaseSettings):
 
     @property
     def ai_candidates(self) -> List[AICandidate]:
-        chain = [item.strip().lower() for item in self.ai_provider_chain.split(",") if item.strip()]
+        normalized = self.ai_provider_chain.replace("\r", "\n").replace(";", "\n").replace(",", "\n")
+        chain = [item.strip().lower() for item in normalized.split("\n") if item.strip()]
         candidates: List[AICandidate] = []
 
         if not chain:

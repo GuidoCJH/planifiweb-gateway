@@ -1,6 +1,7 @@
 param(
-    [string]$GatewayUrl = "https://planifiweb-gateway.vercel.app",
-    [string]$BackendUrl = "https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com"
+    [string]$GatewayUrl = "https://planifiweb.guidojh.pro",
+    [string]$AppUrl = "https://app.planifiweb.guidojh.pro",
+    [string]$BackendUrl = $(if ($env:PLANIFIWEB_BACKEND_URL) { $env:PLANIFIWEB_BACKEND_URL } else { "https://planifiweb-api.koyeb.app" })
 )
 
 $ErrorActionPreference = "Stop"
@@ -39,6 +40,7 @@ function Assert-Status {
 }
 
 $gatewayRoot = Assert-Status -Name "Gateway root" -Url $GatewayUrl -ExpectedStatus 200
+$appRoot = Assert-Status -Name "App root" -Url $AppUrl -ExpectedStatus 200
 $backendHealth = Assert-Status -Name "Backend /health" -Url "$BackendUrl/health" -ExpectedStatus 200
 $backendReady = Assert-Status -Name "Backend /ready" -Url "$BackendUrl/ready" -ExpectedStatus 200
 $docsCheck = Assert-Status -Name "Backend /docs" -Url "$BackendUrl/docs" -ExpectedStatus 404
@@ -66,4 +68,4 @@ if (-not $backendHealth.Headers["strict-transport-security"]) {
 }
 
 Write-Host "Smoke de seguridad OK" -ForegroundColor Green
-$gatewayRoot, $backendHealth, $backendReady, $docsCheck | Select-Object Name, Url, Status | Format-Table -AutoSize
+$gatewayRoot, $appRoot, $backendHealth, $backendReady, $docsCheck | Select-Object Name, Url, Status | Format-Table -AutoSize
