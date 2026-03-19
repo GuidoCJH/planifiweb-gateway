@@ -139,6 +139,9 @@ export const LandingExperience = () => {
 
   const userFirstName =
     user?.name ? formatDisplayName(user.name).split(" ")[0] || "Docente" : "Docente";
+  const canEnterApp = Boolean(
+    session?.can_access_app && !session.legal.acceptance_required,
+  );
 
   return (
     <>
@@ -289,7 +292,7 @@ export const LandingExperience = () => {
                   </div>
 
                   <div className="mt-8 flex flex-wrap gap-3">
-                    {session.can_access_app ? (
+                    {canEnterApp ? (
                       <a href={APP_ENTRY_URL} className="enterprise-button-primary">
                         Entrar a la app <ArrowRight className="h-4 w-4" />
                       </a>

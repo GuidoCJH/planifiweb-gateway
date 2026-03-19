@@ -7,7 +7,10 @@ import { APP_ENTRY_URL } from "@/lib/subscription";
 
 export const Navbar = () => {
   const { user, session } = useAuth();
-  const appHref = session?.can_access_app
+  const canEnterApp = Boolean(
+    session?.can_access_app && !session?.legal.acceptance_required,
+  );
+  const appHref = canEnterApp
     ? APP_ENTRY_URL
     : user
       ? "/dashboard"
