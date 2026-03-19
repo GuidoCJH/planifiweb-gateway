@@ -1,37 +1,38 @@
-# Bootstrap real de SeeNode
+# SeeNode - Referencia legada y base de datos activa
 
-Este directorio deja preparado el backend para el estado actual del workspace.
+SeeNode ya no hospeda el backend web de PLANIFIWEB.
 
-## Estado que ya existe
+## Estado actual
 
-- Proyecto: `planifiweb-platform`
-- PostgreSQL: `planifiweb-platform-db`
-- Host backend objetivo: `web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com`
+### Retirado
+- apps web FastAPI en SeeNode
+- despliegues publicos de backend en SeeNode
 
-## Script principal
+### Aun vigente
+- PostgreSQL productiva actualmente usada por el backend en Koyeb
 
-```powershell
-$env:SEENODE_TOKEN="..."
-.\deploy\seenode\bootstrap.ps1
-```
+## Regla operativa
 
-## Que hace
+No recrees servicios web de FastAPI en SeeNode para este proyecto.
 
-1. Detecta el workspace activo.
-2. Resuelve el proyecto `planifiweb-platform`.
-3. Resuelve la base PostgreSQL asociada.
-4. Construye el `DATABASE_URL` real.
-5. Genera:
-   - `.local/seenode/planifiweb-api.env.generated`
-   - `.local/seenode/bootstrap-state.json`
-   - `.local/seenode/secret-key.txt`
-6. Verifica si el workspace ya tiene GitHub autorizado.
-7. Si GitHub ya esta autorizado, intenta crear `planifiweb-api` con estos comandos:
-   - build: `cd backend && pip install -r requirements.txt`
-   - run: `cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000`
+El uso correcto de SeeNode, mientras no se complete una migracion de base de datos, es solo:
+- mantener disponible la instancia PostgreSQL activa
+- conservar credenciales y backups relacionados con la base
 
-## Bloqueo conocido
+## Que hay en este directorio
 
-Mientras `GET /v1/github/authorized` siga respondiendo `authorized=false`, SeeNode no puede crear la app desde GitHub y devolvera `Authentication to GitHub failed`.
+- `bootstrap.ps1`: referencia historica de bootstrap de SeeNode
+- archivos generados en `.local/seenode/`: solo apoyo operativo, no fuente de verdad del despliegue actual
 
-El script no oculta eso. Imprime la URL exacta de OAuth para resolverlo y volver a correr el bootstrap.
+## Si vas a cerrar SeeNode por completo
+
+Antes debes completar estos pasos:
+1. mover la base de datos activa a otro proveedor
+2. actualizar `DATABASE_URL` en Koyeb
+3. ejecutar migraciones y smoke tests
+4. validar login, dashboard, admin, pagos y app
+5. recien despues apagar la base de SeeNode
+
+## Riesgo principal
+
+Si eliminas la base PostgreSQL de SeeNode antes de migrarla, rompes la produccion aunque el backend siga vivo en Koyeb.

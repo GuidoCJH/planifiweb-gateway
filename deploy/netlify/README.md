@@ -1,13 +1,34 @@
 # Deploy en Netlify + Porkbun + Koyeb
 
-Arquitectura final:
+Guia operativa del despliegue publico actual.
+
+## Arquitectura objetivo
 
 - `guidojh.pro` -> hub principal desde `hub/`
 - `planifiweb.guidojh.pro` -> gateway Next.js desde `frontend/`
-- `app.planifiweb.guidojh.pro` -> app real de `PLANIFIWEB`
+- `app.planifiweb.guidojh.pro` -> app real del repo separado `PLANIFIWEB`
 - backend FastAPI -> Koyeb
+- base de datos activa -> PostgreSQL en SeeNode
 
-## 1. Crear los sites de Netlify
+## Sites esperados en Netlify
+
+### Hub
+- site: `guidojh-root`
+- root directory: `hub`
+- dominio principal: `guidojh.pro`
+- alias: `www.guidojh.pro`
+
+### Gateway
+- site: `planifiweb-gateway`
+- root directory: `frontend`
+- dominio principal: `planifiweb.guidojh.pro`
+
+### App
+- site: `planifiweb-app`
+- repositorio: `PLANIFIWEB`
+- dominio principal: `app.planifiweb.guidojh.pro`
+
+## Bootstrap por CLI
 
 ```powershell
 $env:NETLIFY_AUTH_TOKEN="TU_TOKEN"
@@ -15,34 +36,11 @@ $env:NETLIFY_AUTH_TOKEN="TU_TOKEN"
 ```
 
 El script:
+- crea o resuelve los tres sites
+- guarda estado en `.local/netlify/bootstrap-state.json`
+- imprime los registros DNS esperados para Porkbun
 
-- detecta o crea `guidojh-root`
-- detecta o crea `planifiweb-gateway`
-- detecta o crea `planifiweb-app`
-- guarda el estado en `.local/netlify/bootstrap-state.json`
-- imprime los registros DNS para Porkbun
-
-## 2. Configurar dominios en Netlify
-
-### Hub
-- site: `guidojh-root`
-- custom domain: `guidojh.pro`
-- alias: `www.guidojh.pro`
-- primary domain: `guidojh.pro`
-
-### Gateway
-- site: `planifiweb-gateway`
-- custom domain: `planifiweb.guidojh.pro`
-- primary domain: `planifiweb.guidojh.pro`
-
-### App
-- site: `planifiweb-app`
-- custom domain: `app.planifiweb.guidojh.pro`
-- primary domain: `app.planifiweb.guidojh.pro`
-
-Si Netlify pide TXT de verificación, agrégalo exactamente como lo muestre el panel.
-
-## 3. DNS en Porkbun
+## DNS en Porkbun
 
 Registros esperados:
 
@@ -53,9 +51,9 @@ Registros esperados:
 | `CNAME` | `planifiweb` | `planifiweb-gateway.netlify.app` |
 | `CNAME` | `app.planifiweb` | `planifiweb-app.netlify.app` |
 
-Usa el dominio `.netlify.app` real que aparezca en el estado guardado si llegara a variar.
+Si Netlify exige un TXT de verificacion, agregalo exactamente como lo muestre el panel.
 
-## 4. Variables críticas
+## Variables criticas
 
 ### Gateway
 
@@ -64,13 +62,7 @@ NEXT_PUBLIC_API_URL=/api
 NEXT_PUBLIC_SITE_URL=https://planifiweb.guidojh.pro
 NEXT_PUBLIC_APP_URL=https://app.planifiweb.guidojh.pro
 NEXT_PUBLIC_ALLOWED_EMAIL_DOMAINS=
-API_PROXY_TARGET=https://web-nr3pfzfysqpy.up-de-fra1-k8s-1.apps.run-on-seenode.com
-```
-
-En produccion reemplaza ese valor por el host real de Koyeb:
-
-```bash
-API_PROXY_TARGET=https://<tu-servicio>.koyeb.app
+API_PROXY_TARGET=https://planifiweb-platform-guidojh-de66ea4f.koyeb.app
 ```
 
 ### App
@@ -80,30 +72,35 @@ VITE_API_BASE_URL=https://planifiweb.guidojh.pro/api
 VITE_APP_PUBLIC_URL=https://app.planifiweb.guidojh.pro
 ```
 
-### Backend
+## Despliegue manual recomendado
 
-```bash
-PUBLIC_APP_URL=https://planifiweb.guidojh.pro
-CORS_ORIGINS=https://planifiweb.guidojh.pro,https://app.planifiweb.guidojh.pro
-SESSION_COOKIE_DOMAIN=
-```
-
-Bootstrap recomendado del backend:
+### Gateway
 
 ```powershell
-.\deploy\koyeb\bootstrap.ps1
+cd frontend
+$env:NETLIFY_AUTH_TOKEN="TU_TOKEN"
+npx netlify deploy --prod --build --site <site-id>
 ```
 
-## 5. Smoke mínimo
+### App
 
 ```powershell
-.\deploy\security-smoke.ps1
+cd ..\PLANIFIWEB
+$env:NETLIFY_AUTH_TOKEN="TU_TOKEN"
+npx netlify deploy --prod --build --site <site-id>
 ```
 
-Validar:
+## Smoke minimo
 
+Validar despues de cada despliegue:
 - `https://guidojh.pro`
 - `https://www.guidojh.pro` -> redirect
 - `https://planifiweb.guidojh.pro`
 - `https://app.planifiweb.guidojh.pro`
 - `https://planifiweb.guidojh.pro/api/auth/me`
+- `https://planifiweb.guidojh.pro/recuperar-acceso`
+- `https://planifiweb.guidojh.pro/restablecer-contrasena`
+
+## Nota operativa
+
+Netlify hospeda solo las superficies web. La API no debe desplegarse aqui; se sirve desde Koyeb y se expone al navegador a traves del proxy `/api` del gateway.

@@ -1,50 +1,95 @@
-# Deploy del backend en Koyeb Free + Supabase Free
+# Deploy del backend en Koyeb
 
-## Variables necesarias
+Guia operativa del backend productivo de PLANIFIWEB.
+
+## Estado actual
+
+- compute productivo: Koyeb
+- servicio: `planifiweb-platform/planifiweb-api`
+- URL productiva actual: `https://planifiweb-platform-guidojh-de66ea4f.koyeb.app`
+- health checks activos:
+  - `/health`
+  - `/ready`
+
+## Importante sobre la base de datos
+
+Aunque este directorio conserva un bootstrap para Koyeb + Supabase, la configuracion productiva activa hoy no usa Supabase como base principal.
+
+Estado real actual:
+- backend en Koyeb
+- base de datos activa en PostgreSQL de SeeNode
+
+Si en el futuro quieres completar el corte total de SeeNode, tendras que migrar datos y luego actualizar `DATABASE_URL` en Koyeb de forma controlada.
+
+## Variables minimas del backend
+
+```bash
+APP_ENV=production
+SECRET_KEY=<secreto>
+DATABASE_URL=<postgresql activo>
+PUBLIC_APP_URL=https://planifiweb.guidojh.pro
+CORS_ORIGINS=https://planifiweb.guidojh.pro,https://app.planifiweb.guidojh.pro
+TRUSTED_HOSTS=planifiweb.guidojh.pro,*.koyeb.app
+SESSION_COOKIE_NAME=planifiweb_session
+SESSION_COOKIE_SECURE=true
+SESSION_COOKIE_SAMESITE=lax
+SESSION_COOKIE_DOMAIN=
+API_DOCS_ENABLED=false
+PAYMENT_PRECHECK_ENABLED=false
+GROQ_API_KEY=<token>
+GROQ_MODEL=llama-3.1-8b-instant
+RESEND_API_KEY=<token>
+RESEND_FROM_EMAIL=noreply@guidojh.pro
+RESEND_FROM_NAME=PLANIFIWEB
+PASSWORD_RESET_TOKEN_TTL_MINUTES=60
+PASSWORD_RESET_URL_BASE=https://planifiweb.guidojh.pro/restablecer-contrasena
+```
+
+## Comando de arranque
+
+```bash
+alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+## Bootstrap automatizado
 
 ```powershell
 $env:KOYEB_API_TOKEN="TU_TOKEN_KOYEB"
 $env:SUPABASE_ACCESS_TOKEN="TU_TOKEN_SUPABASE"
-```
-
-Opcional:
-
-```powershell
-$env:SUPABASE_ORGANIZATION_ID="tu-org-id"
-$env:SUPABASE_DATABASE_PASSWORD="tu-password"
-```
-
-## Bootstrap
-
-```powershell
 .\deploy\koyeb\bootstrap.ps1
 ```
 
-El script:
+El bootstrap:
+- prepara un despliegue desde `backend/`
+- puede crear o resolver proyecto en Supabase
+- genera archivos de estado en `.local/koyeb/` y `.local/supabase/`
 
-- resuelve o crea el proyecto `planifiweb-platform` en Supabase
-- genera o reutiliza `SECRET_KEY`
-- despliega `backend/` como `planifiweb-api` en Koyeb
-- publica el servicio con healthcheck TCP en `8000`
-- guarda estado en:
-  - `.local/supabase/bootstrap-state.json`
-  - `.local/koyeb/bootstrap-state.json`
-  - `.local/koyeb/planifiweb-api.env.generated`
+Usalo solo si vas a reconstruir o rehacer el entorno. No asumas que el bootstrap representa exactamente la topologia productiva actual.
 
-## Después del bootstrap
+## Redeploy manual desde el repo
 
-1. Toma `backend_url` desde `.local/koyeb/bootstrap-state.json`
-2. Actualiza `API_PROXY_TARGET` del site `planifiweb-gateway` en Netlify
-3. Redeploy del gateway
-4. Ejecuta:
+Si solo quieres publicar cambios de backend en el servicio existente, usa Koyeb CLI contra el servicio actual y conserva las variables cargadas.
+
+Puntos que no debes sobrescribir por accidente:
+- `DATABASE_URL`
+- `GROQ_API_KEY`
+- `SECRET_KEY`
+- configuracion de correo `RESEND_*`
+
+## Smoke recomendado
 
 ```powershell
-$env:PLANIFIWEB_BACKEND_URL="https://tu-backend.koyeb.app"
-.\deploy\security-smoke.ps1
+Invoke-RestMethod -Uri 'https://planifiweb-platform-guidojh-de66ea4f.koyeb.app/health'
+Invoke-RestMethod -Uri 'https://planifiweb-platform-guidojh-de66ea4f.koyeb.app/ready'
 ```
 
-## Notas
+Validar tambien desde el gateway:
+- `https://planifiweb.guidojh.pro/api/auth/me`
+- `https://planifiweb.guidojh.pro/api/auth/csrf`
+- login
+- recuperacion de contraseña
+- generacion IA
 
-- El deploy usa fallback en DB para rate limiting y recibos: no requiere Redis ni S3.
-- `PAYMENT_PRECHECK_ENABLED=false` en el entorno free.
-- El backend se despliega desde el directorio local `backend/`, no desde GitHub.
+## Nota sobre Resend
+
+Mientras `guidojh.pro` no este verificado en Resend, el backend usa fallback a `onboarding@resend.dev` para no bloquear el flujo de recuperacion.
