@@ -8,7 +8,7 @@ Guia operativa del despliegue publico actual.
 - `planifiweb.guidojh.pro` -> gateway Next.js desde `frontend/`
 - `app.planifiweb.guidojh.pro` -> app real del repo separado `PLANIFIWEB`
 - backend FastAPI -> Koyeb
-- base de datos activa -> PostgreSQL en SeeNode
+- base de datos activa -> PostgreSQL en Supabase
 
 ## Sites esperados en Netlify
 

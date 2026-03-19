@@ -16,7 +16,7 @@ Incluye:
 | Gateway PLANIFIWEB | Activo | `https://planifiweb.guidojh.pro` | Next.js en Netlify |
 | App autenticada | Activa | `https://app.planifiweb.guidojh.pro` | Repo separado `PLANIFIWEB`, Netlify |
 | Backend API | Activo | `https://planifiweb-platform-guidojh-de66ea4f.koyeb.app` | FastAPI en Koyeb |
-| Base de datos productiva | Activa | PostgreSQL en SeeNode | La migracion completa de datos fuera de SeeNode aun no esta cerrada |
+| Base de datos productiva | Activa | PostgreSQL en Supabase | Proyecto productivo `planifiweb-platform-prod` |
 | Correo transaccional | Activo | Resend | Mientras `guidojh.pro` no este verificado, usa fallback a `onboarding@resend.dev` |
 | Vercel | Fuera de operacion | N/A | Ya no forma parte del flujo productivo |
 
@@ -155,7 +155,7 @@ npm run dev
 
 ### Backend
 - compute: Koyeb
-- base de datos activa: PostgreSQL en SeeNode
+- base de datos activa: PostgreSQL en Supabase
 - scripts de despliegue y guias en:
   - [deploy/netlify/README.md](deploy/netlify/README.md)
   - [deploy/koyeb/README.md](deploy/koyeb/README.md)

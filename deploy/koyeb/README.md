@@ -13,13 +13,12 @@ Guia operativa del backend productivo de PLANIFIWEB.
 
 ## Importante sobre la base de datos
 
-Aunque este directorio conserva un bootstrap para Koyeb + Supabase, la configuracion productiva activa hoy no usa Supabase como base principal.
-
 Estado real actual:
 - backend en Koyeb
-- base de datos activa en PostgreSQL de SeeNode
+- base de datos activa en PostgreSQL de Supabase
+- proyecto productivo: `planifiweb-platform-prod`
 
-Si en el futuro quieres completar el corte total de SeeNode, tendras que migrar datos y luego actualizar `DATABASE_URL` en Koyeb de forma controlada.
+El corte de base ya esta cerrado. SeeNode no forma parte del runtime productivo.
 
 ## Variables minimas del backend
 
@@ -64,7 +63,24 @@ El bootstrap:
 - puede crear o resolver proyecto en Supabase
 - genera archivos de estado en `.local/koyeb/` y `.local/supabase/`
 
-Usalo solo si vas a reconstruir o rehacer el entorno. No asumas que el bootstrap representa exactamente la topologia productiva actual.
+Usalo solo si vas a reconstruir o rehacer el entorno.
+
+## Corte de base SeeNode -> Supabase
+
+Script one-off agregado:
+
+```powershell
+$env:KOYEB_API_TOKEN="TU_TOKEN_KOYEB"
+$env:SUPABASE_MCP_ACCESS_TOKEN="TU_TOKEN_SUPABASE"
+.\deploy\koyeb\cutover-db-to-supabase.ps1
+```
+
+Ese script:
+- crea o reutiliza el proyecto `planifiweb-platform-prod`
+- aplica Alembic sobre Supabase
+- genera respaldo logico local del origen
+- migra solo la cuenta admin
+- actualiza `DATABASE_URL` en Koyeb
 
 ## Redeploy manual desde el repo
 

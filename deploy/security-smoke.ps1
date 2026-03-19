@@ -1,7 +1,7 @@
 param(
     [string]$GatewayUrl = "https://planifiweb.guidojh.pro",
     [string]$AppUrl = "https://app.planifiweb.guidojh.pro",
-    [string]$BackendUrl = $(if ($env:PLANIFIWEB_BACKEND_URL) { $env:PLANIFIWEB_BACKEND_URL } else { "https://planifiweb-api.koyeb.app" })
+    [string]$BackendUrl = $(if ($env:PLANIFIWEB_BACKEND_URL) { $env:PLANIFIWEB_BACKEND_URL } else { "https://planifiweb-platform-guidojh-de66ea4f.koyeb.app" })
 )
 
 $ErrorActionPreference = "Stop"

@@ -92,11 +92,11 @@ Eso permite:
 ## Riesgos o pendientes visibles
 
 - el dominio `guidojh.pro` debe verificarse en Resend para usar solo `noreply@guidojh.pro` sin fallback
-- la base de datos activa aun depende de SeeNode aunque el backend ya corre en Koyeb
+- la base de datos ya corre en Supabase y conviene mantener respaldo y rollback documentados
 - todos los tokens expuestos en chat deben rotarse
 
 ## Lectura rapida para negocio
 
-PLANIFIWEB ya esta operativo como producto funcional para beta privada o uso comercial controlado. La arquitectura publica esta ordenada, el flujo de cuenta ya existe y el producto central ya genera contenido real.
+PLANIFIWEB ya esta operativo como producto funcional para beta privada o uso comercial controlado. La arquitectura publica esta ordenada, el flujo de cuenta ya existe, la base ya esta fuera de SeeNode y el producto central ya genera contenido real.
 
-El siguiente salto no es construir desde cero, sino endurecer operacion, cerrar la dependencia pendiente de base de datos y mejorar conversion comercial.
+El siguiente salto no es construir desde cero, sino endurecer operacion, verificar el dominio en Resend y mejorar conversion comercial.

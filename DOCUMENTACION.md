@@ -22,7 +22,7 @@ graph TD
     GW --> API[FastAPI - Koyeb]
     APP --> GWAPI[/https://planifiweb.guidojh.pro/api/]
     GWAPI --> API
-    API --> DB[(PostgreSQL - SeeNode)]
+    API --> DB[(PostgreSQL - Supabase)]
     API --> MAIL[Resend]
     API --> AI[Groq]
     ADMIN[Administrador] --> GW
@@ -36,7 +36,7 @@ graph TD
 | Gateway | Activo | Netlify + Next.js |
 | App | Activa | Netlify + Vite |
 | API | Activa | Koyeb |
-| DB | Activa | PostgreSQL en SeeNode |
+| DB | Activa | PostgreSQL en Supabase |
 | Correo | Activo | Resend con fallback temporal |
 | Vercel | Retirado | No operativo |
 | SeeNode Web Apps | Retiradas | No deben recrearse |
@@ -248,12 +248,9 @@ Checks:
 - `/ready`
 
 ### 8.3 SeeNode
-Rol actual:
-- fuente activa de la base PostgreSQL productiva
-
-Rol retirado:
-- no debe hospedar apps web de FastAPI
-- las apps web antiguas ya fueron eliminadas
+Estado:
+- retirado completamente del flujo productivo
+- se conserva solo como referencia historica de despliegue anterior
 
 ### 8.4 Vercel
 Estado:
@@ -309,8 +306,9 @@ Pendiente:
 - verificar `guidojh.pro` en Resend para dejar de depender de `onboarding@resend.dev`
 
 ### 10.2 Base de datos
-Pendiente:
-- si se decide salir completamente de SeeNode, migrar la base activa y reconfigurar `DATABASE_URL` en Koyeb
+Estado actual:
+- base productiva ya migrada a Supabase
+- se conserva respaldo logico local del origen pre-corte en `.local/db-migration/`
 
 ### 10.3 Secretos
 Pendiente obligatorio:
