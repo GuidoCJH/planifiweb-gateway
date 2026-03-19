@@ -177,6 +177,7 @@ npm run build
 ```
 
 ## Documentacion relacionada
+- [RESUMEN_EJECUTIVO.md](RESUMEN_EJECUTIVO.md)
 - [DOCUMENTACION.md](DOCUMENTACION.md)
 - [frontend/README.md](frontend/README.md)
 - [deploy/netlify/README.md](deploy/netlify/README.md)
