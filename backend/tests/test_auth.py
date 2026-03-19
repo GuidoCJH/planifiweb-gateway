@@ -1,4 +1,6 @@
+from types import SimpleNamespace
 from fastapi.testclient import TestClient
+import httpx
 from urllib.parse import parse_qs, urlparse
 
 from .conftest import auth_headers, csrf_headers
@@ -295,3 +297,46 @@ def test_password_reset_flow_sends_email_and_resets_password(client: TestClient)
         assert login_response.status_code == 200
     finally:
         app.dependency_overrides.pop(get_email_service, None)
+
+
+def test_email_service_falls_back_to_onboarding_sender_for_unverified_domain():
+    from app.email_service import EmailService
+
+    settings = SimpleNamespace(
+        resend_api_key="re_test",
+        resend_from_email="noreply@guidojh.pro",
+        resend_from_name="PLANIFIWEB",
+        effective_password_reset_url_base="https://planifiweb.guidojh.pro/restablecer-contrasena",
+        password_reset_token_ttl_minutes=60,
+    )
+    service = EmailService(settings=settings)
+    payloads: list[dict[str, object]] = []
+    responses = [
+        httpx.Response(
+            status_code=400,
+            json={
+                "message": (
+                    "The guidojh.pro domain is not verified. "
+                    "Please, add and verify your domain on https://resend.com/domains"
+                )
+            },
+        ),
+        httpx.Response(status_code=200, json={"id": "email_123"}),
+    ]
+
+    def fake_post_email(*, api_key: str, payload: dict[str, object]) -> httpx.Response:
+        assert api_key == "re_test"
+        payloads.append(payload)
+        return responses.pop(0)
+
+    service._post_email = fake_post_email  # type: ignore[method-assign]
+
+    service.send_password_reset_email(
+        to_email="docente@gmail.com",
+        to_name="Docente",
+        token="token-reset-de-prueba-123456",
+    )
+
+    assert len(payloads) == 2
+    assert payloads[0]["from"] == "PLANIFIWEB <noreply@guidojh.pro>"
+    assert payloads[1]["from"] == "PLANIFIWEB <onboarding@resend.dev>"
